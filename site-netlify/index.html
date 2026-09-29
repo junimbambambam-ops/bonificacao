@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light" data-pal="exec">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corporação Tiger Gate Ltd. – Programa de Bonificação</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+:root{--pri:#0b2545;--acc:#c9a227}
+[data-pal=esm]{--pri:#0d3b2e;--acc:#c2a35d}[data-pal=graf]{--pri:#22272e;--acc:#f07f1a}[data-pal=vinho]{--pri:#5b1a2e;--acc:#d09a7a}
+[data-theme=light]{--bg:#f3f5f8;--c:#fff;--c2:#eaeef3;--ink:#182230;--mut:#66758a;--line:#dde3ea;--ok:#157f4a;--okbg:#dbf3e5;--no:#b4322d;--nobg:#fadedc}
+[data-theme=dark]{--bg:#0e1218;--c:#161c25;--c2:#1f2733;--ink:#e8edf4;--mut:#93a1b5;--line:#2a3443;--ok:#5fd394;--okbg:#153a28;--no:#f28b85;--nobg:#432120}
+body{font:400 14px/1.6 'Poppins',sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit;color:inherit}
+b,h1,h2,h3,th{font-weight:700}
+small{color:var(--mut);font-size:12px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.top{background:var(--pri);color:#fff;position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:0 24px;min-height:64px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:16px}.brand small{display:block;color:#ffffffb3;line-height:1.2}
+.mk{width:38px;height:38px;border-radius:10px;background:var(--acc);display:grid;place-items:center;font-size:20px}
+.nav{display:flex;flex:1;flex-wrap:wrap}
+.nav button{background:none;border:0;border-bottom:3px solid transparent;color:#ffffffb3;padding:20px 14px 17px;cursor:pointer}
+.nav button.on{color:#fff;border-color:var(--acc);font-weight:700}
+.tb{background:#ffffff1f;border:1px solid #ffffff40;color:#fff;border-radius:8px;padding:6px 12px;cursor:pointer}
+.tb.pri{background:var(--acc);border-color:var(--acc);color:#1b1300;font-weight:700}
+select option{color:#182230}
+#ind{color:#9be7bd;font-size:12px}
+main{max-width:1120px;margin:0 auto;padding:24px 20px 40px}
+h1{font-size:28px;line-height:1.25}
+.sub{color:var(--mut);margin:4px 0 20px}
+.card{background:var(--c);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 1px 3px #0000000d}
+.hero{background:var(--pri);color:#fff;border-radius:18px;padding:30px 34px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;margin-bottom:16px}
+.hero .lab{color:#ffffffb3}.hero h1{margin:2px 0 16px}.hero .sub{color:#ffffffb3;margin:14px 0 0}
+.pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pills button{border:1px solid #ffffff55;background:none;color:#fff;border-radius:20px;padding:5px 16px;cursor:pointer}
+.pills button.on{background:var(--acc);border-color:var(--acc);color:#1b1300;font-weight:700}
+.pills .mv{padding:5px 12px}
+.spot{background:#ffffff14;border:1px solid var(--acc);border-radius:16px;padding:20px 30px;min-width:250px;text-align:center}
+.spot small{display:block;color:#ffffffcc}.spot b{display:block;font-size:32px;line-height:1.2;color:var(--acc)}
+.meta{margin-bottom:16px;display:grid;grid-template-columns:auto 1fr;gap:6px 20px;align-items:center}
+.bar{height:10px;background:var(--c2);border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:16px}
+.cat{display:flex;gap:14px;align-items:center;border-left:5px solid var(--acc)}
+.cat .ic{font-size:34px}.cat b{display:block;font-size:17px;line-height:1.3}.cat span{color:var(--mut);font-size:13px}
+.pod{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:end;margin:22px 0 18px}
+.pd{text-align:center;cursor:pointer}.pd .med{font-size:40px;line-height:1.2}.pd h3{font-size:20px}
+.pd .pts{font-size:40px;font-weight:700;line-height:1.1}
+.pod .r0{order:2;padding-bottom:36px}.pod .r1{order:1}.pod .r2{order:3}
+.pd.lead1{border:3px solid var(--acc);box-shadow:0 14px 34px #0000002e}.pd.lead1 h3{font-size:28px}.pd.lead1 .pts{font-size:56px;color:var(--acc)}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--c);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+th,td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left}
+th{background:var(--c2);font-size:12px}
+tr[data-act]{cursor:pointer}tr[data-act]:hover td{background:var(--c2)}
+tr.first td{background:color-mix(in srgb,var(--acc) 16%,var(--c))}
+.bd{display:inline-block;padding:2px 12px;border-radius:20px;font-size:12px}.bd.ok{background:var(--okbg);color:var(--ok)}.bd.no{background:var(--nobg);color:var(--no)}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:end;margin-bottom:16px}
+.step{text-align:center}.step .ic{font-size:40px;line-height:1.2}.step h3{font-size:16px;margin:6px 0 10px}
+.step .ld{border-top:1px dashed var(--line);padding-top:8px;font-size:13px}.step .ld span{display:block;color:var(--mut)}
+.step.big{background:var(--pri);color:#fff;border:3px solid var(--acc)}.step.big small,.step.big .ld span{color:#ffffffb3}.step.big .ld{border-color:#fff5}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:16px}
+.gate{background:color-mix(in srgb,var(--acc) 16%,var(--c));border:1px solid var(--acc);border-radius:12px;padding:12px 18px;margin-bottom:16px}
+.lane{margin-bottom:8px}.ln{display:flex;justify-content:space-between}.ln span{color:var(--mut)}
+.trk{position:relative;height:14px;background:var(--c2);border-radius:9px;margin:30px 40px 30px 0}
+.trk i{display:block;height:100%;background:var(--acc);border-radius:9px}
+.trk em{position:absolute;top:-30px;transform:translateX(-50%);font-style:normal;font-size:22px}
+.trk u{position:absolute;top:16px;transform:translateX(-50%);text-decoration:none;font-size:16px}
+.trk s{position:absolute;right:-40px;top:-14px;text-decoration:none;font-size:32px}
+.doc{max-width:820px}.doc h3{margin:22px 0 6px;color:var(--pri)}.doc h3:first-child{margin-top:0}
+[data-theme=dark] .doc h3{color:var(--acc)}
+.doc ol{list-style:none;padding:0}.doc li{margin:6px 0;padding-left:40px;text-indent:-40px}.doc li b{display:inline-block;width:40px;text-indent:0}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.f label{display:block;font-size:12px;color:var(--mut)}
+td input,td select,.f input,.f select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.btn{border:1px solid var(--line);background:var(--c);border-radius:8px;padding:7px 14px;cursor:pointer}.btn.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
+.row{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+.md{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.md>div{width:100%;max-width:460px}
+.foot{text-align:center;color:var(--mut);font-size:12px;margin-top:30px}
+body.edit [data-t]{outline:1px dashed var(--acc);outline-offset:3px;cursor:text}
+.pres .adm{display:none!important}.pres tr[data-act],.pres .pd{cursor:default}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.pod,.ladder{grid-template-columns:1fr}.pod .pd{order:0!important;padding-bottom:20px!important}.pod .r0{order:-1!important}.top{padding:8px 14px}}
+
+.ni0{--nc:#2563eb}.ni1{--nc:#9333ea}.ni2{--nc:#ea580c}
+.tools{background:var(--c);border-bottom:1px solid var(--line);padding:8px 24px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tools #ind{color:var(--ok)}
+.top{gap:16px}.nav button{padding:22px 14px 19px}
+main{padding:28px 24px 44px}
+.card{min-width:0}
+.hero{margin-bottom:20px}.meta{margin-bottom:20px}
+.cats{grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:16px;margin-bottom:20px}
+.cat{display:block;border-left:1px solid var(--line);border-top:5px solid var(--nc,var(--acc));padding:18px 20px}
+.cat .hd{display:flex;align-items:center;gap:12px}
+.cat .hd b{font-size:16px;line-height:1.3}
+.cat .ic{font-size:24px;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--nc,var(--acc)) 16%,var(--c))}
+.cat .n{font-size:40px;font-weight:700;line-height:1.1;margin:10px 0 0}
+.cat .ppl{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:13px}
+.cat .ppl div{display:flex;justify-content:space-between;gap:10px}.cat .ppl b{display:inline;font-size:13px;text-align:right}
+.cat.tot{background:var(--pri);color:#fff;border-color:var(--pri);border-top-color:var(--acc)}
+.cat.tot small,.cat.tot .ppl{color:#ffffffbf}.cat.tot .ic{background:#ffffff26}.cat.tot .ppl{border-color:#ffffff40}
+.nb{display:inline-flex;gap:6px;align-items:center;white-space:nowrap;padding:3px 12px;border-radius:20px;font-size:12px;background:color-mix(in srgb,var(--nc) 15%,var(--c));border:1px solid color-mix(in srgb,var(--nc) 45%,var(--c))}
+td.n,th.n{text-align:center;width:1%;white-space:nowrap}
+th[class*=ni]{border-bottom:3px solid var(--nc)}
+tr.nr td:first-child{border-left:5px solid var(--nc)}
+.tfo td{background:var(--pri);color:#fff;font-weight:700;border:0}
+.flt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.flt button{border:1px solid var(--line);background:var(--c);border-radius:20px;padding:5px 16px;cursor:pointer}
+.flt button.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+.ladder{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));align-items:stretch;gap:16px;margin-bottom:20px}
+.step{padding-top:20px!important}
+.lvl{height:6px;background:var(--c2);border-radius:6px;margin:0 0 12px;overflow:hidden}.lvl i{display:block;height:100%;background:var(--acc)}
+.step.big .lvl{background:#ffffff33}
+.two{gap:16px;margin-bottom:20px}.gate{margin-bottom:20px}
+.pod{gap:16px}
+@media(max-width:800px){main{padding:18px 14px 36px}.tools{padding:8px 14px}}
+
+.svs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.svs span{font-size:12px;background:var(--c2);border-radius:20px;padding:2px 10px}
+.sv{border:1px solid var(--line);background:var(--c);border-radius:20px;padding:2px 10px;font-size:12px;cursor:pointer;margin:2px;white-space:nowrap}
+.sv.on{background:var(--nc,#9333ea);color:#fff;border-color:var(--nc,#9333ea)}
+.metaC{margin-bottom:20px}
+.mrow{display:grid;grid-template-columns:190px 1fr 190px;gap:12px;align-items:center;margin-top:10px}
+.mrow .bar i{background:var(--nc,var(--acc))}.mrow.tt{border-top:1px dashed var(--line);padding-top:10px}.mrow.tt .bar i{background:var(--acc)}
+.cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.mc{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--c)}.mc.on{border:2px solid var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--c))}.mc b{display:block;font-size:13px}
+.chs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chs button{border:2px solid var(--line);background:var(--c);border-radius:12px;padding:8px 14px;cursor:pointer}
+.chs button.on{border-color:var(--nc);background:color-mix(in srgb,var(--nc) 14%,var(--c));font-weight:700}
+.nw{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.nw .btn{background:var(--nc);border-color:var(--nc);color:#fff}
+.f2{display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px}
+@media(max-width:800px){.mrow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><span class="mk">🐯</span><div><b>Corporação Tiger Gate Ltd.</b><small>Programa de Bonificação</small></div></div>
+  <div class="nav" id="nav"></div>
+  <button class="tb" data-act="theme" aria-label="Tema claro ou escuro">🌓</button>
+</div>
+<div class="tools adm">
+  <select id="pal" class="btn" aria-label="Paleta de cores"><option value="exec">🎨 Executivo</option><option value="esm">🎨 Esmeralda</option><option value="graf">🎨 Grafite</option><option value="vinho">🎨 Vinho</option></select>
+  <button class="btn" data-act="edit" id="be">✏️ Modo edição</button>
+  <button class="btn pri" data-act="save">💾 Salvar</button>
+  <span id="ind"></span>
+  <span style="flex:1"></span>
+  <button class="btn" data-act="dl" data-pres="0">📥 Backup editável</button>
+  <button class="btn pri" data-act="dl" data-pres="1">🎤 Baixar apresentação</button>
+</div>
+<main id="app"></main>
+<div id="modal"></div>
+<script id="seed" type="application/json">null</script>
+<script>
+const $=s=>document.querySelector(s),EMP='Corporação Tiger Gate Ltd.',TIPOS=['Seguro','Marketing','Aluguel de Motos'],TI={Seguro:'🛡️',Marketing:'📣','Aluguel de Motos':'🏍️'},MED=['🥇','🥈','🥉'];
+const PER=[['m','Mensal'],['3','3 meses'],['6','6 meses'],['9','9 meses'],['12','12 meses']],PI={m:'🎁',3:'🥉',6:'🥈',9:'🥇',12:'🏆'};
+const brl=n=>(+n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),ymo=d=>d.slice(0,7),fd=s=>s.split('-').reverse().join('/');
+const ymadd=(s,n)=>{let[y,m]=s.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=(m-1)%12+1;return y+'-'+String(m).padStart(2,'0')};
+const MN=s=>{const[y,m]=s.split('-');return['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][m-1]+'/'+y};
+const D0={ts:0,texts:{},view:'rank',per:'m',ym:'2026-10',amo:'2026-10',team:['Adriana','Bruna','Caroline'].map(n=>({n,att:{}})),deals:[],
+ rules:{maxF:0,minT:90,gate:'Sim',start:'2026-10-01',cresc:20,mb:{Seguro:20,Marketing:20,'Aluguel de Motos':20},
+ prizes:{3:'Jantar no Coco Bambu para 2 pessoas',6:'Jantar no Coco Bambu para 3 pessoas (família)',9:'Fim de semana com hospedagem',12:'Viagem de premiação (destino a definir)'},cp:{3:300,6:450,9:1200,12:6000},
+ mensal:['Dia de folga','Vale-presente de delivery','Cesta de café gourmet','Vale happy hour','Caixa de chocolates','Saída mais cedo na sexta','Vale-presente de loja online','Almoço por conta da empresa','Vale cinema para 2','Vale-presente de livraria','Kit churrasco','Vale-presente de fim de ano'],
+ cm:[80,100,90,100,70,0,100,120,120,100,150,150],
+ cat:'Vale-presente e troféu de destaque',tes:{goal:40,prize:'Baú do Tesouro: bônus surpresa'}}};
+const SV=[['Disparo em massa','📨'],['Tráfego','🎯'],['Gerenciamento','🧩'],['Gráfica','🖨️']];
+function norm(s){const R=s.rules,d=D0.rules;R.mb=R.mb||{...d.mb};R.mensal=R.mensal||[...d.mensal];R.cm=R.cm||[...d.cm];R.cp=R.cp||{...d.cp};R.prizes={...d.prizes,...R.prizes};s.deals.forEach(x=>x.serv=x.serv||[]);return s}
+function load(){let a=null,b=null;try{a=JSON.parse(localStorage.getItem('tg_bonus2'))}catch(e){}try{b=JSON.parse($('#seed').textContent)}catch(e){}
+ if(b&&b.pres)return norm(b);const s=(a&&b)?(a.ts>=b.ts?a:b):(a||b);return norm(s||structuredClone(D0))}
+let S=load(),open=null,edit=false,nw=null;
+const T=(k,d)=>`<span data-t="${k}">${S.texts[k]??d}</span>`;
+function save(){S.ts=Date.now();try{localStorage.setItem('tg_bonus2',JSON.stringify(S))}catch(e){}
+ $('#ind').textContent='✔ Salvo';clearTimeout(save.t);save.t=setTimeout(()=>$('#ind').textContent='',1800)}
+const mos=p=>p=='m'?[S.ym]:Array.from({length:+p},(_,i)=>ymadd(S.rules.start.slice(0,7),i));
+const A=(p,m)=>(p.att||{})[m]||{f:0,a:0,c:0},ok=(p,m)=>{const a=A(p,m);return a.f<=S.rules.maxF&&(a.a>0?a.c/a.a*100:100)>=S.rules.minT};
+function calc(per){const M=mos(per),P=S.team.map((p,i)=>{const ds=S.deals.filter(d=>d.who===p.n&&M.includes(ymo(d.d))),v=ds.filter(d=>ok(p,ymo(d.d))),cnt={};
+ TIPOS.forEach(t=>cnt[t]=v.filter(d=>d.tipo===t).length);return{i,p,pts:v.length,blk:ds.length-v.length,cnt,last:v.map(d=>d.d).sort().pop()||'9999',bm:M.filter(m=>!ok(p,m))}});
+ P.sort((a,b)=>b.pts-a.pts||(a.last<b.last?-1:a.last>b.last?1:0));const cat={};
+ TIPOS.forEach(t=>{const mx=Math.max(0,...P.map(x=>x.cnt[t]));cat[t]={mx,who:mx?P.filter(x=>x.cnt[t]==mx).map(x=>x.p.n):[]}});
+ return{P,cat,tot:P.reduce((s,x)=>s+x.pts,0)}}
+function meta(){const g=1+S.rules.cresc/100,per=TIPOS.map(t=>{const n=S.deals.filter(d=>d.tipo==t).length,m=Math.ceil((S.rules.mb[t]||0)*g);return{t,n,m,p:m?Math.round(n/m*100):0}}),n=per.reduce((s,x)=>s+x.n,0),m=per.reduce((s,x)=>s+x.m,0);
+ return{per,n,m,p:m?Math.round(n/m*100):0,hit:m>0&&n>=m}}
+const mIdx=m=>{const[a,b]=S.rules.start.slice(0,7).split('-').map(Number),[y,z]=m.split('-').map(Number);return Math.max(0,Math.min(11,(y-a)*12+z-b))},prize=k=>k=='m'?S.rules.mensal[mIdx(S.ym)]:S.rules.prizes[k];
+const inp=(p,v,t='text',x='')=>`<input type="${t}" value="${String(v).replace(/"/g,'&quot;')}" data-p="${p}" ${x}>`,
+ sel=(p,v,o)=>`<select data-p="${p}">${o.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join('')}</select>`,
+ pl=n=>n+' fechamento'+(n==1?'':'s');
+function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.P.reduce((s,x)=>s+x.cnt[t],0),blk=c.P.reduce((s,x)=>s+x.blk,0);
+ return `<section class="hero"><div><p class="lab">${EMP}</p><h1>${T('t1','Ranking de Fechamentos')}</h1>
+ <div class="pills">${PER.map(([k,l])=>`<button class="${S.per==k?'on':''}" data-act="per" data-k="${k}">${l}</button>`).join('')}
+ ${S.per=='m'?`<button class="mv" data-act="mv" data-k="-1" aria-label="Mês anterior">‹</button><b>${MN(S.ym)}</b><button class="mv" data-act="mv" data-k="1" aria-label="Próximo mês">›</button>`:''}</div>
+ <p class="sub">${S.per=='m'?'Apuração do mês':'Acumulado dos '+S.per+' primeiros meses, desde '+fd(S.rules.start)}. Pontua quem mais fecha.</p></div>
+ <div class="spot">${lead?`<small>👑 Líder do período</small><b>${L.p.n}</b><small>${pl(L.pts)}</small>`:'<small>🚀 Período aberto</small><b>Sem fechamentos</b><small>Seja a primeira!</small>'}</div></section>
+ <div class="cats">${TIPOS.map((t,i)=>{const k=c.cat[t],n=sm(t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${n}</div><small>${n==1?'fechamento':'fechamentos'}</small>
+ <div class="ppl">${k.mx?`<div><span>⭐ Destaque</span><b>${k.who.join(' e ')} (${k.mx})</b></div>`:'<div><span>Sem fechamentos ainda</span></div>'}</div></div>`}).join('')}
+ <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${c.tot}</div><small>fechamentos no período</small><div class="ppl"><div><span>${blk?'🚫 Bloqueados por faltas ou tarefas':'✅ Todos válidos'}</span><b>${blk||''}</b></div></div></div></div>
+ <div class="card metaC"><b>🎯 Meta de fechamentos de clientes (+${S.rules.cresc}%)</b><small style="display:block">Acumulado do programa, em % da meta</small>
+ ${mt.per.map((x,i)=>`<div class="mrow ni${i}"><span>${TI[x.t]} ${x.t}</span><div class="bar"><i style="width:${Math.min(100,x.p)}%"></i></div><b>${x.p}% <small>(${x.n} de ${x.m})</small></b></div>`).join('')}
+ <div class="mrow tt"><span><b>➕ Total geral</b></span><div class="bar"><i style="width:${Math.min(100,mt.p)}%"></i></div><b>${mt.p}% <small>(${mt.n} de ${mt.m})</small></b></div>${mt.hit?'<p>✅ Meta atingida!</p>':''}</div>
+ <div class="pod">${c.P.slice(0,3).map((x,r)=>`<div class="card pd r${r}${r==0&&x.pts?' lead1':''}" data-act="open" data-i="${x.i}"><div class="med">${MED[r]}</div><h3>${x.p.n}</h3><div class="pts">${x.pts}</div><small>fechamentos</small></div>`).join('')}</div>
+ <div class="wrap"><table><tr><th class="n">Pos.</th><th>Colaboradora</th>${TIPOS.map((t,i)=>`<th class="n ni${i}">${TI[t]} ${t}</th>`).join('')}<th class="n">Total</th><th>Situação</th></tr>
+ ${c.P.map((x,r)=>`<tr class="${r==0&&x.pts?'first':''}" data-act="open" data-i="${x.i}"><td class="n">${r<3?MED[r]:r+1}</td><td><b>${x.p.n}</b></td>${TIPOS.map(t=>`<td class="n">${x.cnt[t]}</td>`).join('')}<td class="n"><b>${x.pts}</b></td>
+ <td>${x.bm.length?`<span class="bd no">🚫 Bloqueada em ${x.bm.map(MN).join(', ')}</span>`:'<span class="bd ok">✅ Elegível</span>'}</td></tr>`).join('')}
+ <tr class="tfo"><td class="n">➕</td><td>Total geral</td>${TIPOS.map(t=>`<td class="n">${sm(t)}</td>`).join('')}<td class="n">${c.tot}</td><td>${blk?'🚫 '+blk+' bloqueado(s)':''}</td></tr></table></div>
+ <div class="row adm" style="justify-content:flex-start"><button class="btn pri" data-act="addp">➕ Adicionar pessoa</button><small style="align-self:center">Clique numa linha ou no pódio para editar faltas e tarefas.</small></div>`}
+function vPrizes(){const R=S.rules,mt=meta(),mi=mIdx(S.ym);
+ return `<h1>${T('t4','Premiação')}</h1><p class="sub">${T('s4','Quanto maior o período, maior o prêmio. Vence quem mais fecha.')}</p>
+ <div class="gate">🎯 ${R.gate=='Sim'?`Prêmios liberados com a meta de <b>+${R.cresc}%</b> em fechamentos de clientes (${mt.m} clientes). ${mt.hit?'✅ Meta atingida!':'Já são '+mt.p+'% da meta: faltam '+(mt.m-mt.n)+' clientes.'}`:'Prêmios liberados conforme o ranking.'}</div>
+ <div class="ladder">${PER.map(([k,l],i)=>{const c=calc(k),L=c.P[0],ld=L&&L.pts>0;return `<div class="card step${k=='12'?' big':''}"><div class="ic">${PI[k]}</div><small>${k=='m'?'Prêmio de '+MN(S.ym):'Campeã de '+l}</small><div class="lvl"><i style="width:${(i+1)*20}%"></i></div><h3>${prize(k)}</h3><div class="ld">${ld?`👑 <b>${L.p.n}</b><span>${pl(L.pts)}</span>`:'<span>Sem líder ainda</span>'}</div></div>`}).join('')}</div>
+ <div class="card" style="margin-bottom:16px"><h3>📅 Calendário de prêmios mensais</h3><small style="display:block;margin-bottom:10px">Cada mês tem um prêmio diferente, sempre menor que o de 3 meses.</small><div class="cal">${R.mensal.map((p,i)=>`<div class="mc${i==mi?' on':''}"><small>${MN(ymadd(R.start.slice(0,7),i))}</small><b>${p}</b></div>`).join('')}</div></div>
+ <div class="two"><div class="card"><h3>🏅 Destaque por categoria</h3><p>${R.cat}</p><small>Para quem mais fecha em Seguro, Marketing e Aluguel de Motos em cada apuração.</small></div>
+ <div class="card"><h3>🗺️ Corrida ao Tesouro</h3><p>${R.tes.prize}</p><small>Para quem chegar primeiro a ${R.tes.goal} fechamentos.</small></div></div>`}
+function vTes(){const c=calc('12'),g=+S.rules.tes.goal||1,W=c.P.filter(x=>x.pts>=g).sort((a,b)=>a.last<b.last?-1:1)[0];
+ return `<h1>${T('t7','🗺️ Corrida ao Tesouro')}</h1><p class="sub">${T('s7','Cada fechamento avança você no mapa. Quem chegar primeiro ao baú leva o tesouro.')}</p>
+ <div class="gate">🏴‍☠️ Tesouro: <b>${S.rules.tes.prize}</b> para quem chegar a <b>${g} fechamentos</b>.${W?` 🎉 Baú aberto por <b>${W.p.n}</b>!`:''}</div>
+ <div class="card">${c.P.map(x=>{const p=Math.min(100,x.pts/g*100);return `<div class="lane"><div class="ln"><b>${x.p.n}</b><span>${x.pts} de ${g}${x.pts<g?', faltam '+(g-x.pts):' ✅'}</span></div>
+ <div class="trk"><i style="width:${p}%"></i><em style="left:${p}%">🐯</em>${[25,50,75].map((m,j)=>`<u style="left:${m}%">${['🗺️','🧭','🏝️'][j]}</u>`).join('')}<s>💰</s></div></div>`}).join('')}
+ <small>🗺️ 25% · 🧭 50% · 🏝️ 75% · 💰 baú do tesouro</small></div>`}
+function vRules(){const R=S.rules,mt=meta(),cl=[
+ ['CLÁUSULA 1ª – DO OBJETO',[`Este regulamento disciplina o Programa de Bonificação da ${EMP}, aplicável às áreas de Marketing, Seguros e Aluguel de Motos.`,`O programa premia as colaboradoras que mais fecharem contratos e busca um crescimento de ${R.cresc}% na meta de fechamentos de clientes.`]],
+ ['CLÁUSULA 2ª – DA PONTUAÇÃO',[`Cada contrato fechado vale 1 (um) ponto, independentemente do valor. Vence quem mais fecha.`,`Todo fechamento é registrado por nicho: Seguro, Marketing (clientes) ou Aluguel de Motos.`,`Nos fechamentos de Marketing informam-se os serviços contratados: ${SV.map(s=>s[0]).join(', ')}.`,`Em cada apuração serão destacadas a colaboradora com mais fechamentos em Seguro, a com mais em Marketing e a com mais em Aluguel de Motos.`]],
+ ['CLÁUSULA 3ª – DAS FALTAS E TAREFAS',[`Feita a contagem dos fechamentos, aplicam-se as faltas e as tarefas de cada mês.`,`Mais de ${R.maxF} falta(s) injustificada(s) no mês impedem a pontuação dos fechamentos daquele mês.`,`Cumprimento inferior a ${R.minT}% das tarefas atribuídas no mês também impede a pontuação daquele mês.`,`Fechamentos bloqueados permanecem registrados e contam para a meta de fechamentos da empresa.`]],
+ ['CLÁUSULA 4ª – DOS PERÍODOS DE APURAÇÃO',[`A apuração é mensal e também acumulada em 3, 6, 9 e 12 meses, contados a partir de ${fd(R.start)}.`,`Cada período tem premiação própria, sempre maior que a do período anterior. Nenhum prêmio mensal ultrapassa o prêmio de 3 meses.`]],
+ ['CLÁUSULA 5ª – DA PREMIAÇÃO',[`Prêmios mensais: ${R.mensal.map((p,i)=>`${i+1}º mês, ${p}`).join('; ')}.`,...PER.filter(x=>x[0]!='m').map(([k,l])=>`Campeã de ${l}: ${R.prizes[k]}.`),`Destaque por categoria: ${R.cat}.`]],
+ ['CLÁUSULA 6ª – DA META DE FECHAMENTOS',[`A meta da empresa é de ${mt.m} fechamentos de clientes (${mt.per.map(x=>x.m+' em '+x.t).join(', ')}), ${R.cresc}% acima da base do período anterior.`,R.gate=='Sim'?'Os prêmios somente serão entregues com a meta atingida.':'A entrega dos prêmios independe da meta.']],
+ ['CLÁUSULA 7ª – DA CORRIDA AO TESOURO',[`Quem primeiro alcançar ${R.tes.goal} fechamentos válidos no programa conquista o Tesouro: ${R.tes.prize}.`]],
+ ['CLÁUSULA 8ª – DO DESEMPATE',[`Havendo empate no número de fechamentos, vence quem atingiu o total primeiro.`]],
+ ['CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS',[`Os casos omissos serão decididos pela Diretoria da ${EMP}.`,`A empresa poderá alterar este regulamento mediante aviso prévio à equipe.`]]];
+ return `<h1>${T('t6','📜 Regulamento do Programa')}</h1><p class="sub">${T('s6','Leia com atenção: as regras valem para todas.')}</p>
+ <div class="card doc">${cl.map(([t,ps],i)=>`<h3>${t}</h3><ol>${ps.map((p,j)=>`<li><b>${i+1}.${j+1}</b>${p}</li>`).join('')}</ol>`).join('')}</div>`}
+function vDeals(){const F=S.fil||'all',all=S.deals,ds=all.map((d,i)=>({d,i})).filter(x=>F=='all'||x.d.tipo==F),
+ ppl=a=>S.team.map(p=>`<div><span>${p.n}</span><b>${a.filter(d=>d.who===p.n).length}</b></div>`).join(''),svc=a=>SV.map(([n,e])=>`<span>${e} ${n}: <b>${a.filter(d=>d.serv.includes(n)).length}</b></span>`).join(''),cl=n=>n==1?'cliente':'clientes';
+ return `<h1>${T('t2','Fechamentos')}</h1><p class="sub">Escolha o nicho, preencha e salve. Os cards somam tudo sozinhos. Cada linha vale 1 ponto.</p>
+ <div class="nw"><b>➕ Novo fechamento:</b>${TIPOS.map((t,i)=>`<button class="btn ni${i}" data-act="new" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
+ <div class="cats">${TIPOS.map((t,i)=>{const a=all.filter(d=>d.tipo==t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${a.length}</div><small>${cl(a.length)}</small>${t=='Marketing'?`<div class="svs">${svc(a)}</div>`:''}<div class="ppl">${ppl(a)}</div></div>`}).join('')}
+ <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${all.length}</div><small>${cl(all.length)}</small><div class="ppl">${ppl(all)}</div></div></div>
+ <div class="flt">${[['all','📋 Todos',all.length],...TIPOS.map(t=>[t,TI[t]+' '+t,all.filter(d=>d.tipo==t).length])].map(([k,l,n])=>`<button class="${F==k?'on':''}" data-act="fil" data-k="${k}">${l} (${n})</button>`).join('')}</div>
+ <div class="wrap"><table><tr><th>Nicho</th><th>Data</th><th>Colaboradora</th><th>Tipo</th><th>Cliente</th><th>Serviços (Marketing)</th><th></th></tr>
+ ${ds.map(({d,i})=>`<tr class="nr ni${TIPOS.indexOf(d.tipo)}"><td><span class="nb">${TI[d.tipo]} ${d.tipo}</span></td><td>${inp(`deals.${i}.d`,d.d,'date')}</td><td>${sel(`deals.${i}.who`,d.who,S.team.map(p=>p.n))}</td><td>${sel(`deals.${i}.tipo`,d.tipo,TIPOS)}</td><td>${inp(`deals.${i}.cli`,d.cli)}</td>
+ <td class="ni1">${d.tipo=='Marketing'?SV.map(([n,e])=>`<button class="sv ${d.serv.includes(n)?'on':''}" data-act="sv" data-i="${i}" data-k="${n}">${e} ${n}</button>`).join(''):'<small>—</small>'}</td><td><button class="btn" data-act="deld" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||'<tr><td colspan=7>Nenhum fechamento aqui ainda. Use os botões de novo fechamento acima.</td></tr>'}
+ <tr class="tfo"><td colspan=7>Total ${F=='all'?'geral':TI[F]+' '+F}: ${ds.length} ${cl(ds.length)}</td></tr></table></div>`}
+function nwModal(){return `<div class="md" data-act="nwc"><div class="card"><h3 style="margin-bottom:12px">Novo fechamento</h3><div class="chs">${TIPOS.map((t,i)=>`<button class="ni${i}${nw.tipo==t?' on':''}" data-act="nwt" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
+ <div class="f"><div><label>Data</label><input type="date" value="${nw.d}" data-nw="d"></div><div><label>Colaboradora</label><select data-nw="who">${S.team.map(p=>`<option ${p.n==nw.who?'selected':''}>${p.n}</option>`).join('')}</select></div><div><label>Cliente</label><input value="${nw.cli.replace(/"/g,'&quot;')}" data-nw="cli"></div></div>
+ ${nw.tipo=='Marketing'?`<label style="font-size:12px;color:var(--mut)">Serviços contratados</label><div class="ni1" style="margin-bottom:8px">${SV.map(([n,e])=>`<button class="sv ${nw.serv.includes(n)?'on':''}" data-act="nwv" data-k="${n}">${e} ${n}</button>`).join('')}</div>`:''}
+ <div class="row"><button class="btn" data-act="nwc" data-x="1">Cancelar</button><button class="btn pri" data-act="nwsave" data-x="1">Salvar em ${TI[nw.tipo]} ${nw.tipo}</button></div></div></div>`}
+function vConfig(){const R=S.rules,n=(p,l,v)=>`<div><label>${l}</label>${inp(p,v,'number','step=any min=0')}</div>`,tx=(p,l,v)=>`<div><label>${l}</label>${inp(p,v)}</div>`,w=[],c3=+R.cp[3];
+ R.mensal.forEach((p,i)=>{if(+R.cm[i]>c3)w.push(`${i+1}º mês (${p}) passa o prêmio de 3 meses`)});[3,6,9,12].forEach((k,i,a)=>{if(i&&+R.cp[k]<+R.cp[a[i-1]])w.push(`O prêmio de ${k} meses é menor que o de ${a[i-1]} meses`)});
+ return `<h1>${T('t3','⚙️ Configurar')}</h1><p class="sub">O que você muda aqui atualiza ranking, prêmios e regulamento.</p>
+ <div class="card" style="margin-bottom:14px"><h3>Programa e meta de fechamentos (clientes)</h3><div class="f"><div><label>Início do programa</label>${inp('rules.start',R.start,'date')}</div>${n('rules.cresc','Crescimento exigido (%)',R.cresc)}<div><label>Prêmios só com meta atingida?</label>${sel('rules.gate',R.gate,['Sim','Não'])}</div></div>
+ <div class="f">${TIPOS.map(t=>n('rules.mb.'+t,TI[t]+' base de clientes (período anterior)',R.mb[t])).join('')}</div></div>
+ <div class="card" style="margin-bottom:14px"><h3>Faltas e tarefas</h3><div class="f">${n('rules.maxF','Máx. de faltas injustificadas no mês',R.maxF)}${n('rules.minT','% mínimo de tarefas no mês',R.minT)}</div></div>
+ <div class="gate" ${w.length?'style="border-color:var(--no)"':''}>${w.length?'⚠️ '+w.join('<br>⚠️ '):'✅ Todos os prêmios mensais estão abaixo do de 3 meses e a escada só sobe.'}</div>
+ <div class="card" style="margin-bottom:14px"><h3>Prêmios por período (custo estimado em R$, só para você conferir)</h3>${[3,6,9,12].map(k=>`<div class="f2"><div><label>Campeã de ${k} meses</label>${inp('rules.prizes.'+k,R.prizes[k])}</div>${n('rules.cp.'+k,'Custo',R.cp[k])}</div>`).join('')}</div>
+ <div class="card" style="margin-bottom:14px"><h3>Prêmios de cada mês</h3>${R.mensal.map((p,i)=>`<div class="f2"><div><label>${i+1}º mês (${MN(ymadd(R.start.slice(0,7),i))})</label>${inp('rules.mensal.'+i,p)}</div>${n('rules.cm.'+i,'Custo',R.cm[i])}</div>`).join('')}</div>
+ <div class="card"><h3>Extras</h3><div class="f">${tx('rules.cat','Destaque por categoria',R.cat)}${tx('rules.tes.prize','Tesouro',R.tes.prize)}${n('rules.tes.goal','Meta do tesouro (fechamentos)',R.tes.goal)}</div></div>`}
+function render(){const H=document.documentElement;H.dataset.pal=S.pal||'exec';H.dataset.theme=S.theme||'light';$('#pal').value=S.pal||'exec';
+ document.body.classList.toggle('pres',!!S.pres);document.body.classList.toggle('edit',edit&&!S.pres);
+ $('#nav').innerHTML=[['rank','🏆 Ranking'],['prizes','🎁 Prêmios'],['tes','🗺️ Tesouro'],['rules','📜 Regulamento'],['deals','📝 Fechamentos',1],['config','⚙️ Configurar',1]].filter(n=>!(S.pres&&n[2])).map(([k,l,a])=>`<button class="${S.view==k?'on':''}${a?' adm':''}" data-act="tab" data-k="${k}">${l}</button>`).join('');
+ $('#app').innerHTML=({rank:vRank,prizes:vPrizes,tes:vTes,rules:vRules,deals:vDeals,config:vConfig}[S.view]||vRank)()+`<p class="foot">© ${EMP} Todos os direitos reservados.</p>`;
+ const p=S.team[open];if(p){p.att=p.att||{};p.att[S.amo]=p.att[S.amo]||{f:0,a:0,c:0}}const b=p&&`team.${open}.att.${S.amo}.`;
+ $('#modal').innerHTML=nw&&!S.pres?nwModal():p&&!S.pres?`<div class="md" data-act="close"><div class="card"><h3 style="margin-bottom:12px">Editar ${p.n}</h3><div class="f"><div><label>Nome</label>${inp(`team.${open}.n`,p.n)}</div><div><label>Mês de referência</label>${inp('amo',S.amo,'month')}</div>
+ <div><label>Faltas injustificadas</label>${inp(b+'f',p.att[S.amo].f,'number','min=0')}</div><div><label>Tarefas atribuídas</label>${inp(b+'a',p.att[S.amo].a,'number','min=0')}</div><div><label>Tarefas concluídas</label>${inp(b+'c',p.att[S.amo].c,'number','min=0')}</div></div>
+ <div class="row"><button class="btn" data-act="delp">Excluir pessoa</button><button class="btn pri" data-act="close" data-x="1">Pronto</button></div></div></div>`:'';
+ document.querySelectorAll('[data-t]').forEach(e=>e.contentEditable=edit&&!S.pres)}
+function setPath(path,v){const k=path.split('.');let o=S;k.slice(0,-1).forEach(x=>o=o[x]);const l=k[k.length-1],m=path.match(/^team\.(\d+)\.n$/);
+ if(m){const old=o[l];S.deals.forEach(d=>{if(d.who===old)d.who=v})}o[l]=typeof o[l]==='number'?(+v||0):v}
+function dl(pres){save();const s=Object.assign({},S,{pres:pres?1:0,view:'rank'}),c=document.documentElement.cloneNode(true);
+ c.querySelector('#seed').textContent=JSON.stringify(s).replace(/</g,'\\u003c');c.querySelector('#app').innerHTML='';c.querySelector('#modal').innerHTML='';c.querySelector('body').className='';
+ const u=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+c.outerHTML],{type:'text/html'})),l=document.createElement('a');l.href=u;l.download=pres?'Tiger_Gate_Apresentacao.html':'Tiger_Gate_Bonificacao.html';l.click()}
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.nw){nw[t.dataset.nw]=t.value;return}if(t.id=='pal'){S.pal=t.value;save();render();return}const p=t.dataset.p;if(!p)return;
+ setPath(p,t.tagName=='SELECT'&&/\.dur$/.test(p)?+t.value:t.value);save();render()});
+document.addEventListener('focusout',e=>{const k=e.target.dataset&&e.target.dataset.t;if(k){S.texts[k]=e.target.innerHTML;save()}});
+document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act,i=+a.dataset.i;
+ if(S.pres&&!['tab','theme','per','mv'].includes(act))return;
+ if((act=='close'||act=='nwc')&&e.target.closest('.md>div')&&!a.dataset.x)return;
+ if(act=='tab'){S.view=a.dataset.k;save()}else if(act=='per'){S.per=a.dataset.k;save()}else if(act=='mv'){S.ym=ymadd(S.ym,+a.dataset.k);save()}
+ else if(act=='open'){open=i;S.amo=S.per=='m'?S.ym:S.amo}else if(act=='close')open=null;
+ else if(act=='addp'){S.team.push({n:'Nova pessoa',att:{}});open=S.team.length-1;save()}
+ else if(act=='delp'){if(confirm('Excluir esta pessoa e os fechamentos dela?')){const n=S.team[open].n;S.deals=S.deals.filter(d=>d.who!==n);S.team.splice(open,1);open=null;save()}}
+ else if(act=='addd'){const t=a.dataset.t0;S.deals.push({d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',tipo:TIPOS.includes(S.fil)?S.fil:'Seguro',cli:'',dur:3,val:0});save()}
+ else if(act=='new'){const t=new Date().toISOString().slice(0,10);nw={tipo:a.dataset.k,d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',cli:'',serv:[]}}
+ else if(act=='nwt')nw.tipo=a.dataset.k;
+ else if(act=='nwv'){const s=nw.serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k)}
+ else if(act=='nwc')nw=null;
+ else if(act=='nwsave'){S.deals.push({d:nw.d,who:nw.who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});S.fil=nw.tipo;S.view='deals';nw=null;save()}
+ else if(act=='sv'){const s=S.deals[i].serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k);save()}
+ else if(act=='fil'){S.fil=a.dataset.k;save()}
+ else if(act=='deld'){S.deals.splice(i,1);save()}
+ else if(act=='edit'){edit=!edit;$('#be').textContent=edit?'✏️ Editando: clique nos textos':'✏️ Modo edição'}
+ else if(act=='save')save();
+ else if(act=='theme'){S.theme=S.theme=='dark'?'light':'dark';save()}
+ else if(act=='dl')dl(a.dataset.pres=='1');
+ render()});
+render();
+</script>
+
+<button id="btnSyncNotion" onclick="sincronizarNotionFinal()" style="
+position:fixed;
+right:20px;
+bottom:20px;
+z-index:9999;
+padding:12px 18px;
+border-radius:12px;
+border:0;
+cursor:pointer;
+font-weight:700;
+background:#f5c400;">
+🔄 Sincronizar Notion
+</button>
+<div id="syncStatusNotion" style="
+position:fixed;
+right:20px;
+bottom:70px;
+z-index:9999;
+background:white;
+padding:8px 12px;
+border-radius:8px;
+font-size:13px;">
+</div>
+
+<script>
+async function sincronizarNotionFinal(){
+  const status = document.getElementById("syncStatusNotion");
+  const btn = document.getElementById("btnSyncNotion");
+  const norm = s => String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+
+  try{
+    if(btn) btn.disabled = true;
+    if(status) status.innerText = "Sincronizando Notion...";
+
+    // Usa o próprio site quando está no Netlify; senão cai no endereço fixo
+    const base = location.protocol.startsWith("http") ? "" : "https://bonificacao2027.netlify.app";
+    const response = await fetch(base + "/.netlify/functions/notion");
+    const data = await response.json().catch(() => null);
+
+    if(!response.ok || !data || !Array.isArray(data.fechamentos)){
+      const det = data && (data.error || (data.erros && data.erros.map(e => e.banco+": "+e.erro).join(" | ")));
+      throw new Error(det || ("HTTP " + response.status));
+    }
+
+    const nomes = S.team.map(p => p.n);
+    const semMatch = new Set();
+
+    // guarda os serviços já marcados em fechamentos vindos do Notion
+    const antigos = {};
+    S.deals.filter(d => d.src === "notion").forEach(d => { antigos[[d.who,d.cli,d.d].join("|")] = d.serv || []; });
+
+    const convertidos = data.fechamentos.map(item => {
+      const who = nomes.find(n => norm(n) === norm(item.funcionario)) || (item.funcionario || "");
+      if(!nomes.includes(who)) semMatch.add(who || "(vazio)");
+      const d = (item.data || "").slice(0,10);
+      const cli = item.cliente || "";
+      return {
+        d, who, cli,
+        tipo: item.tipo === "MKT" ? "Marketing" : (item.tipo || "Seguro"),
+        serv: antigos[[who,cli,d].join("|")] || [],
+        val: 0, dur: 3, src: "notion"
+      };
+    });
+
+    // mantém os fechamentos lançados à mão (ex.: Aluguel de Motos) e troca só os do Notion
+    S.deals = S.deals.filter(d => d.src !== "notion").concat(convertidos);
+    save();
+    render();
+
+    let msg = "Sincronizado: " + convertidos.length + " fechamentos";
+    if(data.erros && data.erros.length) msg += " | Falhou: " + data.erros.map(e => e.banco).join(", ");
+    if(semMatch.size) msg += " | Sem colaboradora na equipe: " + [...semMatch].join(", ");
+    if(status) status.innerText = msg;
+
+  }catch(e){
+    console.error(e);
+    if(status) status.innerText = "Erro: " + e.message;
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+</script>
+
+</body></html>
