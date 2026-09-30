@@ -159,14 +159,15 @@ const PER=[['m','Mensal'],['3','3 meses'],['6','6 meses'],['9','9 meses'],['12',
 const brl=n=>(+n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),ymo=d=>d.slice(0,7),fd=s=>s.split('-').reverse().join('/');
 const ymadd=(s,n)=>{let[y,m]=s.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=(m-1)%12+1;return y+'-'+String(m).padStart(2,'0')};
 const MN=s=>{const[y,m]=s.split('-');return['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][m-1]+'/'+y};
-const D0={ts:0,texts:{},view:'rank',per:'m',ym:'2026-10',amo:'2026-10',team:['Adriana','Bruna','Caroline'].map(n=>({n,att:{}})),deals:[],
- rules:{maxF:0,minT:90,gate:'Sim',start:'2026-10-01',cresc:20,mb:{Seguro:20,Marketing:20,'Aluguel de Motos':20},
+const D0={ts:0,occ:[],texts:{},view:'rank',per:'m',ym:'2026-10',amo:'2026-10',team:['Adriana','Bruna','Caroline'].map(n=>({n,att:{}})),deals:[],
+ rules:{maxF:0,minT:90,pf:1,pgv:2,pg:{Leve:0.5,'Média':1,Grave:2},gate:'Sim',start:'2026-10-01',cresc:20,mb:{Seguro:20,Marketing:20,'Aluguel de Motos':20},
  prizes:{3:'Jantar no Coco Bambu para 2 pessoas',6:'Jantar no Coco Bambu para 3 pessoas (família)',9:'Fim de semana com hospedagem',12:'Viagem de premiação (destino a definir)'},cp:{3:300,6:450,9:1200,12:6000},
  mensal:['Dia de folga','Vale-presente de delivery','Cesta de café gourmet','Vale happy hour','Caixa de chocolates','Saída mais cedo na sexta','Vale-presente de loja online','Almoço por conta da empresa','Vale cinema para 2','Vale-presente de livraria','Kit churrasco','Vale-presente de fim de ano'],
  cm:[80,100,90,100,70,0,100,120,120,100,150,150],
  cat:'Vale-presente e troféu de destaque',tes:{goal:40,prize:'Baú do Tesouro: bônus surpresa'}}};
 const SV=[['Disparo em massa','📨'],['Tráfego','🎯'],['Gerenciamento','🧩'],['Gráfica','🖨️']];
-function norm(s){const R=s.rules,d=D0.rules;R.mb=R.mb||{...d.mb};R.mensal=R.mensal||[...d.mensal];R.cm=R.cm||[...d.cm];R.cp=R.cp||{...d.cp};R.prizes={...d.prizes,...R.prizes};s.deals.forEach(x=>x.serv=x.serv||[]);return s}
+const GR=['Leve','Média','Grave'],GI={Leve:'🟡','Média':'🟠',Grave:'🔴'},OT=['Falta','Tarefa não feita','Tarefa não concluída','Outro'];
+function norm(s){const R=s.rules,d=D0.rules;s.occ=s.occ||[];R.pf=1;if(R.pgv!==2){R.pg={...d.pg};R.pgv=2}R.pg={...d.pg,...R.pg};R.mb=R.mb||{...d.mb};R.mensal=R.mensal||[...d.mensal];R.cm=R.cm||[...d.cm];R.cp=R.cp||{...d.cp};R.prizes={...d.prizes,...R.prizes};s.deals.forEach(x=>x.serv=x.serv||[]);return s}
 function load(){let a=null,b=null;try{a=JSON.parse(localStorage.getItem('tg_bonus2'))}catch(e){}try{b=JSON.parse($('#seed').textContent)}catch(e){}
  if(b&&b.pres)return norm(b);const s=(a&&b)?(a.ts>=b.ts?a:b):(a||b);return norm(s||structuredClone(D0))}
 let S=load(),open=null,edit=false,nw=null;
@@ -175,8 +176,9 @@ function save(){S.ts=Date.now();try{localStorage.setItem('tg_bonus2',JSON.string
  $('#ind').textContent='✔ Salvo';clearTimeout(save.t);save.t=setTimeout(()=>$('#ind').textContent='',1800)}
 const mos=p=>p=='m'?[S.ym]:Array.from({length:+p},(_,i)=>ymadd(S.rules.start.slice(0,7),i));
 const A=(p,m)=>(p.att||{})[m]||{f:0,a:0,c:0},ok=(p,m)=>{const a=A(p,m);return a.f<=S.rules.maxF&&(a.a>0?a.c/a.a*100:100)>=S.rules.minT};
-function calc(per){const M=mos(per),P=S.team.map((p,i)=>{const ds=S.deals.filter(d=>d.who===p.n&&M.includes(ymo(d.d))),v=ds.filter(d=>ok(p,ymo(d.d))),cnt={};
- TIPOS.forEach(t=>cnt[t]=v.filter(d=>d.tipo===t).length);return{i,p,pts:v.length,blk:ds.length-v.length,cnt,last:v.map(d=>d.d).sort().pop()||'9999',bm:M.filter(m=>!ok(p,m))}});
+function calc(per){const M=mos(per),P=S.team.map((p,i)=>{const ds=S.deals.filter(d=>d.who===p.n&&M.includes(ymo(d.d))),os=S.occ.filter(o=>o.who===p.n&&M.includes(ymo(o.d))),oc={};GR.forEach(g=>oc[g]=os.filter(o=>o.gr===g).length);
+ const ded=GR.reduce((s,g)=>s+oc[g]*(+S.rules.pg[g]||0),0),cnt={};TIPOS.forEach(t=>cnt[t]=ds.filter(d=>d.tipo===t).length);
+ return{i,p,pts:ds.length,oc,on:os.length,ded,sc:ds.length,cnt,last:ds.map(d=>d.d).sort().pop()||'9999'}});
  P.sort((a,b)=>b.pts-a.pts||(a.last<b.last?-1:a.last>b.last?1:0));const cat={};
  TIPOS.forEach(t=>{const mx=Math.max(0,...P.map(x=>x.cnt[t]));cat[t]={mx,who:mx?P.filter(x=>x.cnt[t]==mx).map(x=>x.p.n):[]}});
  return{P,cat,tot:P.reduce((s,x)=>s+x.pts,0)}}
@@ -186,33 +188,38 @@ const mIdx=m=>{const[a,b]=S.rules.start.slice(0,7).split('-').map(Number),[y,z]=
 const inp=(p,v,t='text',x='')=>`<input type="${t}" value="${String(v).replace(/"/g,'&quot;')}" data-p="${p}" ${x}>`,
  sel=(p,v,o)=>`<select data-p="${p}">${o.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join('')}</select>`,
  pl=n=>n+' fechamento'+(n==1?'':'s'),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmt=n=>String(n).replace('.',',');
 function delDeal(i){const d=S.deals[i];if(d&&d.nid){S.ign=S.ign||[];if(!S.ign.includes(d.nid))S.ign.push(d.nid)}S.deals.splice(i,1);save()}
-function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.P.reduce((s,x)=>s+x.cnt[t],0),blk=c.P.reduce((s,x)=>s+x.blk,0);
+function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.P.reduce((s,x)=>s+x.cnt[t],0),on=c.P.reduce((s,x)=>s+x.on,0),ocb=x=>x.on?GR.filter(g=>x.oc[g]).map(g=>GI[g]+x.oc[g]).join(' '):'—';
  return `<section class="hero"><div><p class="lab">${EMP}</p><h1>${T('t1','Ranking de Fechamentos')}</h1>
  <div class="pills">${PER.map(([k,l])=>`<button class="${S.per==k?'on':''}" data-act="per" data-k="${k}">${l}</button>`).join('')}
  ${S.per=='m'?`<button class="mv" data-act="mv" data-k="-1" aria-label="Mês anterior">‹</button><b>${MN(S.ym)}</b><button class="mv" data-act="mv" data-k="1" aria-label="Próximo mês">›</button>`:''}</div>
- <p class="sub">${S.per=='m'?'Apuração do mês':'Acumulado dos '+S.per+' primeiros meses, desde '+fd(S.rules.start)}. Pontua quem mais fecha.</p></div>
- <div class="spot">${lead?`<small>👑 Líder do período</small><b>${L.p.n}</b><small>${pl(L.pts)}</small>`:'<small>🚀 Período aberto</small><b>Sem fechamentos</b><small>Seja a primeira!</small>'}</div></section>
+ <p class="sub">${S.per=='m'?'Apuração do mês':'Acumulado dos '+S.per+' primeiros meses, desde '+fd(S.rules.start)}. Cada cliente fechado vale 1 ponto. Pontua quem mais fecha.</p></div>
+ <div class="spot">${lead?`<small>👑 Líder do período</small><b>${L.p.n}</b><small>${L.pts} ${L.pts==1?'ponto':'pontos'}</small>`:'<small>🚀 Período aberto</small><b>Sem fechamentos</b><small>Seja a primeira!</small>'}</div></section>
  <div class="cats">${TIPOS.map((t,i)=>{const k=c.cat[t],n=sm(t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${n}</div><small>${n==1?'fechamento':'fechamentos'}</small>
  <div class="ppl">${k.mx?`<div><span>⭐ Destaque</span><b>${k.who.join(' e ')} (${k.mx})</b></div>`:'<div><span>Sem fechamentos ainda</span></div>'}</div></div>`}).join('')}
- <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${c.tot}</div><small>fechamentos no período</small><div class="ppl"><div><span>${blk?'🚫 Bloqueados por faltas ou tarefas':'✅ Todos válidos'}</span><b>${blk||''}</b></div></div></div></div>
+ <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${c.tot}</div><small>fechamentos no período</small><div class="ppl"><div><span>Seguro + Marketing + Motos</span></div></div></div></div>
  <div class="card metaC"><b>🎯 Meta de fechamentos de clientes (+${S.rules.cresc}%)</b><small style="display:block">Acumulado do programa, em % da meta</small>
  ${mt.per.map((x,i)=>`<div class="mrow ni${i}"><span>${TI[x.t]} ${x.t}</span><div class="bar"><i style="width:${Math.min(100,x.p)}%"></i></div><b>${x.p}% <small>(${x.n} de ${x.m})</small></b></div>`).join('')}
  <div class="mrow tt"><span><b>➕ Total geral</b></span><div class="bar"><i style="width:${Math.min(100,mt.p)}%"></i></div><b>${mt.p}% <small>(${mt.n} de ${mt.m})</small></b></div>${mt.hit?'<p>✅ Meta atingida!</p>':''}</div>
- <div class="pod">${c.P.slice(0,3).map((x,r)=>`<div class="card pd r${r}${r==0&&x.pts?' lead1':''}" data-act="open" data-i="${x.i}"><div class="med">${MED[r]}</div><h3>${x.p.n}</h3><div class="pts">${x.pts}</div><small>fechamentos</small></div>`).join('')}</div>
- <div class="wrap"><table><tr><th class="n">Pos.</th><th>Colaboradora</th>${TIPOS.map((t,i)=>`<th class="n ni${i}">${TI[t]} ${t}</th>`).join('')}<th class="n">Total</th><th>Situação</th></tr>
- ${c.P.map((x,r)=>`<tr class="${r==0&&x.pts?'first':''}" data-act="open" data-i="${x.i}"><td class="n">${r<3?MED[r]:r+1}</td><td><b>${x.p.n}</b></td>${TIPOS.map(t=>`<td class="n">${x.cnt[t]}</td>`).join('')}<td class="n"><b>${x.pts}</b></td>
- <td>${x.bm.length?`<span class="bd no">🚫 Bloqueada em ${x.bm.map(MN).join(', ')}</span>`:'<span class="bd ok">✅ Elegível</span>'}</td></tr>`).join('')}
- <tr class="tfo"><td class="n">➕</td><td>Total geral</td>${TIPOS.map(t=>`<td class="n">${sm(t)}</td>`).join('')}<td class="n">${c.tot}</td><td>${blk?'🚫 '+blk+' bloqueado(s)':''}</td></tr></table></div>
+ <div class="pod">${c.P.slice(0,3).map((x,r)=>`<div class="card pd r${r}${r==0&&x.pts?' lead1':''}" data-act="open" data-i="${x.i}"><div class="med">${MED[r]}</div><h3>${x.p.n}</h3><div class="pts">${x.pts}</div><small>${x.pts==1?'ponto':'pontos'}</small></div>`).join('')}</div>
+ <div class="wrap"><table><tr><th class="n">Pos.</th><th>Colaboradora</th>${TIPOS.map((t,i)=>`<th class="n ni${i}">${TI[t]} ${t}</th>`).join('')}<th class="n">Pontos</th></tr>
+ ${c.P.map((x,r)=>`<tr class="${r==0&&x.pts?'first':''}" data-act="open" data-i="${x.i}"><td class="n">${r<3?MED[r]:r+1}</td><td><b>${x.p.n}</b></td>${TIPOS.map(t=>`<td class="n">${x.cnt[t]}</td>`).join('')}<td class="n"><b>${x.pts}</b></td></tr>`).join('')}
+ <tr class="tfo"><td class="n">➕</td><td>Total geral</td>${TIPOS.map(t=>`<td class="n">${sm(t)}</td>`).join('')}<td class="n">${c.tot}</td></tr></table></div>
+ <div class="card" style="margin-top:18px"><h3>⚠️ Faltas e tarefas no período</h3><small style="display:block;margin-bottom:10px">Contagem separada do ranking: não tira pontos e não muda a posição dos fechamentos.</small>
+ <div class="wrap"><table><tr><th>Colaboradora</th><th class="n">🟡 Leve</th><th class="n">🟠 Média</th><th class="n">🔴 Grave</th><th class="n">Total</th></tr>
+ ${[...c.P].sort((a,b)=>a.oc.Grave-b.oc.Grave||a.oc['Média']-b.oc['Média']||a.oc.Leve-b.oc.Leve).map(x=>`<tr><td><b>${esc(x.p.n)}</b></td><td class="n">${x.oc.Leve}</td><td class="n">${x.oc['Média']}</td><td class="n">${x.oc.Grave}</td><td class="n"><b>${x.on}</b></td></tr>`).join('')}
+ <tr class="tfo"><td>Total geral</td>${GR.map(g=>`<td class="n">${c.P.reduce((s,x)=>s+x.oc[g],0)}</td>`).join('')}<td class="n">${on}</td></tr></table></div></div>
  <div class="row adm" style="justify-content:flex-start"><button class="btn pri" data-act="addp">➕ Adicionar pessoa</button><small style="align-self:center">Clique numa linha ou no pódio para editar faltas e tarefas.</small></div>
  <div class="card adm cli"><h3>👥 Clientes do período</h3><small style="display:block;margin-bottom:10px">Só aparece no modo edição (some na apresentação). Aqui você lança ou remove fechamentos.</small>
  <div class="nw"><b>➕ Novo fechamento:</b>${TIPOS.map((t,i)=>`<button class="btn ni${i}" data-act="new" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
- ${TIPOS.map((t,i)=>{const M=mos(S.per),a=S.deals.map((d,j)=>({d,j})).filter(x=>x.d.tipo==t&&M.includes(ymo(x.d.d||'')));return `<div class="cl ni${i}"><b>${TI[t]} ${t} (${a.length})</b><div class="chips">${a.map(x=>`<span class="chip">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`).join('')||'<small>Nenhum cliente neste período</small>'}</div></div>`}).join('')}
+ <div style="margin-bottom:12px"><button class="btn" data-act="newocc">⚠️ Nova ocorrência (falta / tarefa)</button></div>
+ ${TIPOS.map((t,i)=>{const M=mos(S.per),a=S.deals.map((d,j)=>({d,j})).filter(x=>x.d.tipo==t&&M.includes(ymo(x.d.d||'')));return `<div class="cl ni${i}"><b>${TI[t]} ${t} (${a.length})</b><div class="chips">${a.map(x=>`<span class="chip" title="${esc(x.d.who)} · ${fd(x.d.d||'')}">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`).join('')||'<small>Nenhum cliente neste período</small>'}</div></div>`}).join('')}
  ${(S.ign||[]).length?`<button class="btn" data-act="unign">↩ Restaurar ${S.ign.length} removido(s) do Notion</button>`:''}</div>`}
 function vPrizes(){const R=S.rules,mt=meta(),mi=mIdx(S.ym);
  return `<h1>${T('t4','Premiação')}</h1><p class="sub">${T('s4','Quanto maior o período, maior o prêmio. Vence quem mais fecha.')}</p>
  <div class="gate">🎯 ${R.gate=='Sim'?`Prêmios liberados com a meta de <b>+${R.cresc}%</b> em fechamentos de clientes (${mt.m} clientes). ${mt.hit?'✅ Meta atingida!':'Já são '+mt.p+'% da meta: faltam '+(mt.m-mt.n)+' clientes.'}`:'Prêmios liberados conforme o ranking.'}</div>
- <div class="ladder">${PER.map(([k,l],i)=>{const c=calc(k),L=c.P[0],ld=L&&L.pts>0;return `<div class="card step${k=='12'?' big':''}"><div class="ic">${PI[k]}</div><small>${k=='m'?'Prêmio de '+MN(S.ym):'Campeã de '+l}</small><div class="lvl"><i style="width:${(i+1)*20}%"></i></div><h3>${prize(k)}</h3><div class="ld">${ld?`👑 <b>${L.p.n}</b><span>${pl(L.pts)}</span>`:'<span>Sem líder ainda</span>'}</div></div>`}).join('')}</div>
+ <div class="ladder">${PER.map(([k,l],i)=>{const c=calc(k),L=c.P[0],ld=L&&L.pts>0;return `<div class="card step${k=='12'?' big':''}"><div class="ic">${PI[k]}</div><small>${k=='m'?'Prêmio de '+MN(S.ym):'Campeã de '+l}</small><div class="lvl"><i style="width:${(i+1)*20}%"></i></div><h3>${prize(k)}</h3><div class="ld">${ld?`👑 <b>${L.p.n}</b><span>${L.pts} ${L.pts==1?'ponto':'pontos'}</span>`:'<span>Sem líder ainda</span>'}</div></div>`}).join('')}</div>
  <div class="card" style="margin-bottom:16px"><h3>📅 Calendário de prêmios mensais</h3><small style="display:block;margin-bottom:10px">Cada mês tem um prêmio diferente, sempre menor que o de 3 meses.</small><div class="cal">${R.mensal.map((p,i)=>`<div class="mc${i==mi?' on':''}"><small>${MN(ymadd(R.start.slice(0,7),i))}</small><b>${p}</b></div>`).join('')}</div></div>
  <div class="two"><div class="card"><h3>🏅 Destaque por categoria</h3><p>${R.cat}</p><small>Para quem mais fecha em Seguro, Marketing e Aluguel de Motos em cada apuração.</small></div>
  <div class="card"><h3>🗺️ Corrida ao Tesouro</h3><p>${R.tes.prize}</p><small>Para quem chegar primeiro a ${R.tes.goal} fechamentos.</small></div></div>`}
@@ -224,8 +231,8 @@ function vTes(){const c=calc('12'),g=+S.rules.tes.goal||1,W=c.P.filter(x=>x.pts>
  <small>🗺️ 25% · 🧭 50% · 🏝️ 75% · 💰 baú do tesouro</small></div>`}
 function vRules(){const R=S.rules,mt=meta(),cl=[
  ['CLÁUSULA 1ª – DO OBJETO',[`Este regulamento disciplina o Programa de Bonificação da ${EMP}, aplicável às áreas de Marketing, Seguros e Aluguel de Motos.`,`O programa premia as colaboradoras que mais fecharem contratos e busca um crescimento de ${R.cresc}% na meta de fechamentos de clientes.`]],
- ['CLÁUSULA 2ª – DA PONTUAÇÃO',[`Cada contrato fechado vale 1 (um) ponto, independentemente do valor. Vence quem mais fecha.`,`Todo fechamento é registrado por nicho: Seguro, Marketing (clientes) ou Aluguel de Motos.`,`Nos fechamentos de Marketing informam-se os serviços contratados: ${SV.map(s=>s[0]).join(', ')}.`,`Em cada apuração serão destacadas a colaboradora com mais fechamentos em Seguro, a com mais em Marketing e a com mais em Aluguel de Motos.`]],
- ['CLÁUSULA 3ª – DAS FALTAS E TAREFAS',[`Feita a contagem dos fechamentos, aplicam-se as faltas e as tarefas de cada mês.`,`Mais de ${R.maxF} falta(s) injustificada(s) no mês impedem a pontuação dos fechamentos daquele mês.`,`Cumprimento inferior a ${R.minT}% das tarefas atribuídas no mês também impede a pontuação daquele mês.`,`Fechamentos bloqueados permanecem registrados e contam para a meta de fechamentos da empresa.`]],
+ ['CLÁUSULA 2ª – DA PONTUAÇÃO',[`Cada cliente fechado vale 1 (um) ponto, independentemente do valor ou do nicho (Seguro, Marketing ou Aluguel de Motos).`,`Todo fechamento é registrado por nicho: Seguro, Marketing (clientes) ou Aluguel de Motos.`,`Nos fechamentos de Marketing informam-se os serviços contratados: ${SV.map(s=>s[0]).join(', ')}.`,`Em cada apuração serão destacadas a colaboradora com mais fechamentos em Seguro, a com mais em Marketing e a com mais em Aluguel de Motos.`]],
+ ['CLÁUSULA 3ª – DAS FALTAS E TAREFAS',[`Faltas, tarefas não feitas e tarefas não concluídas são registradas e classificadas em leve, média ou grave.`,`Elas não retiram pontos, não bloqueiam fechamentos e não alteram a posição no ranking de fechamentos.`,`São apuradas em quadro separado, com a contagem de faltas leves, médias e graves de cada colaboradora.`]],
  ['CLÁUSULA 4ª – DOS PERÍODOS DE APURAÇÃO',[`A apuração é mensal e também acumulada em 3, 6, 9 e 12 meses, contados a partir de ${fd(R.start)}.`,`Cada período tem premiação própria, sempre maior que a do período anterior. Nenhum prêmio mensal ultrapassa o prêmio de 3 meses.`]],
  ['CLÁUSULA 5ª – DA PREMIAÇÃO',[`Prêmios mensais: ${R.mensal.map((p,i)=>`${i+1}º mês, ${p}`).join('; ')}.`,...PER.filter(x=>x[0]!='m').map(([k,l])=>`Campeã de ${l}: ${R.prizes[k]}.`),`Destaque por categoria: ${R.cat}.`]],
  ['CLÁUSULA 6ª – DA META DE FECHAMENTOS',[`A meta da empresa é de ${mt.m} fechamentos de clientes (${mt.per.map(x=>x.m+' em '+x.t).join(', ')}), ${R.cresc}% acima da base do período anterior.`,R.gate=='Sim'?'Os prêmios somente serão entregues com a meta atingida.':'A entrega dos prêmios independe da meta.']],
@@ -245,6 +252,16 @@ function vDeals(){const F=S.fil||'all',all=S.deals,ds=all.map((d,i)=>({d,i})).fi
  ${ds.map(({d,i})=>`<tr class="nr ni${TIPOS.indexOf(d.tipo)}"><td><span class="nb">${TI[d.tipo]} ${d.tipo}</span></td><td>${inp(`deals.${i}.d`,d.d,'date')}</td><td>${sel(`deals.${i}.who`,d.who,S.team.map(p=>p.n))}</td><td>${sel(`deals.${i}.tipo`,d.tipo,TIPOS)}</td><td>${inp(`deals.${i}.cli`,d.cli)}</td>
  <td class="ni1">${d.tipo=='Marketing'?SV.map(([n,e])=>`<button class="sv ${d.serv.includes(n)?'on':''}" data-act="sv" data-i="${i}" data-k="${n}">${e} ${n}</button>`).join(''):'<small>—</small>'}</td><td><button class="btn" data-act="deld" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||'<tr><td colspan=7>Nenhum fechamento aqui ainda. Use os botões de novo fechamento acima.</td></tr>'}
  <tr class="tfo"><td colspan=7>Total ${F=='all'?'geral':TI[F]+' '+F}: ${ds.length} ${cl(ds.length)}</td></tr></table></div>`}
+function vOcc(){const F=S.ofil||'all',R=S.rules,rows=S.occ.map((o,i)=>({o,i})).filter(x=>F=='all'||x.o.who===F).sort((a,b)=>a.o.d<b.o.d?1:-1),
+ tot=n=>S.occ.filter(o=>o.who===n),ded=n=>GR.reduce((s,g)=>s+tot(n).filter(o=>o.gr===g).length*(+R.pg[g]||0),0);
+ return `<h1>${T('t8','⚠️ Ocorrências')}</h1><p class="sub">Faltas, tarefas não feitas e tarefas não concluídas. Elas não tiram pontos e não mudam o ranking: aparecem em um quadro separado, abaixo do ranking.</p>
+ <div class="gate">Cada cliente fechado = 1 ponto. As faltas são só uma contagem por gravidade (🟡 leve · 🟠 média · 🔴 grave) e não mudam a posição no ranking.</div>
+ <div class="cats">${S.team.map(p=>{const a=tot(p.n);return `<div class="card cat"><div class="hd"><b>${esc(p.n)}</b></div><div class="n">${a.length}</div><small>${a.length==1?'ocorrência':'ocorrências'} no programa</small><div class="ppl">${GR.map(g=>`<div><span>${GI[g]} ${g}</span><b>${a.filter(o=>o.gr===g).length}</b></div>`).join('')}</div></div>`}).join('')}</div>
+ <div style="margin-bottom:12px"><button class="btn pri" data-act="newocc">➕ Nova ocorrência</button></div>
+ <div class="flt">${[['all','📋 Todas',S.occ.length],...S.team.map(p=>[p.n,p.n,tot(p.n).length])].map(([k,l,n])=>`<button class="${F==k?'on':''}" data-act="ofil" data-k="${esc(k)}">${esc(l)} (${n})</button>`).join('')}</div>
+ <div class="wrap"><table><tr><th>Data</th><th>Colaboradora</th><th>Tipo</th><th>Gravidade</th><th>Observação</th><th></th></tr>
+ ${rows.map(({o,i})=>`<tr><td>${inp(`occ.${i}.d`,o.d,'date')}</td><td>${sel(`occ.${i}.who`,o.who,S.team.map(p=>p.n))}</td><td>${sel(`occ.${i}.tipo`,o.tipo,OT)}</td><td>${sel(`occ.${i}.gr`,o.gr,GR)}</td><td>${inp(`occ.${i}.obs`,o.obs||'')}</td><td><button class="btn" data-act="delo" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||'<tr><td colspan=6>Nenhuma ocorrência lançada ainda.</td></tr>'}
+ <tr class="tfo"><td colspan=6>Total: ${rows.length}</td></tr></table></div>`}
 function nwModal(){return `<div class="md" data-act="nwc"><div class="card"><h3 style="margin-bottom:12px">Novo fechamento</h3><div class="chs">${TIPOS.map((t,i)=>`<button class="ni${i}${nw.tipo==t?' on':''}" data-act="nwt" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
  <div class="f"><div><label>Data</label><input type="date" value="${nw.d}" data-nw="d"></div><div><label>Colaboradora</label><select data-nw="who">${S.team.map(p=>`<option ${p.n==nw.who?'selected':''}>${p.n}</option>`).join('')}</select></div><div><label>Cliente</label><input value="${nw.cli.replace(/"/g,'&quot;')}" data-nw="cli"></div></div>
  ${nw.tipo=='Marketing'?`<label style="font-size:12px;color:var(--mut)">Serviços contratados</label><div class="ni1" style="margin-bottom:8px">${SV.map(([n,e])=>`<button class="sv ${nw.serv.includes(n)?'on':''}" data-act="nwv" data-k="${n}">${e} ${n}</button>`).join('')}</div>`:''}
@@ -254,22 +271,20 @@ function vConfig(){const R=S.rules,n=(p,l,v)=>`<div><label>${l}</label>${inp(p,v
  return `<h1>${T('t3','⚙️ Configurar')}</h1><p class="sub">O que você muda aqui atualiza ranking, prêmios e regulamento.</p>
  <div class="card" style="margin-bottom:14px"><h3>Programa e meta de fechamentos (clientes)</h3><div class="f"><div><label>Início do programa</label>${inp('rules.start',R.start,'date')}</div>${n('rules.cresc','Crescimento exigido (%)',R.cresc)}<div><label>Prêmios só com meta atingida?</label>${sel('rules.gate',R.gate,['Sim','Não'])}</div></div>
  <div class="f">${TIPOS.map(t=>n('rules.mb.'+t,TI[t]+' base de clientes (período anterior)',R.mb[t])).join('')}</div></div>
- <div class="card" style="margin-bottom:14px"><h3>Faltas e tarefas</h3><div class="f">${n('rules.maxF','Máx. de faltas injustificadas no mês',R.maxF)}${n('rules.minT','% mínimo de tarefas no mês',R.minT)}</div></div>
- <div class="gate" ${w.length?'style="border-color:var(--no)"':''}>${w.length?'⚠️ '+w.join('<br>⚠️ '):'✅ Todos os prêmios mensais estão abaixo do de 3 meses e a escada só sobe.'}</div>
+  <div class="gate" ${w.length?'style="border-color:var(--no)"':''}>${w.length?'⚠️ '+w.join('<br>⚠️ '):'✅ Todos os prêmios mensais estão abaixo do de 3 meses e a escada só sobe.'}</div>
  <div class="card" style="margin-bottom:14px"><h3>Prêmios por período (custo estimado em R$, só para você conferir)</h3>${[3,6,9,12].map(k=>`<div class="f2"><div><label>Campeã de ${k} meses</label>${inp('rules.prizes.'+k,R.prizes[k])}</div>${n('rules.cp.'+k,'Custo',R.cp[k])}</div>`).join('')}</div>
  <div class="card" style="margin-bottom:14px"><h3>Prêmios de cada mês</h3>${R.mensal.map((p,i)=>`<div class="f2"><div><label>${i+1}º mês (${MN(ymadd(R.start.slice(0,7),i))})</label>${inp('rules.mensal.'+i,p)}</div>${n('rules.cm.'+i,'Custo',R.cm[i])}</div>`).join('')}</div>
  <div class="card"><h3>Extras</h3><div class="f">${tx('rules.cat','Destaque por categoria',R.cat)}${tx('rules.tes.prize','Tesouro',R.tes.prize)}${n('rules.tes.goal','Meta do tesouro (fechamentos)',R.tes.goal)}</div></div>`}
 function render(){const H=document.documentElement;H.dataset.pal=S.pal||'exec';H.dataset.theme=S.theme||'light';$('#pal').value=S.pal||'exec';
  document.body.classList.toggle('pres',!!S.pres);document.body.classList.toggle('edit',edit&&!S.pres);
- $('#nav').innerHTML=[['rank','🏆 Ranking'],['prizes','🎁 Prêmios'],['tes','🗺️ Tesouro'],['rules','📜 Regulamento'],['deals','📝 Fechamentos',1],['config','⚙️ Configurar',1]].filter(n=>!(S.pres&&n[2])).map(([k,l,a])=>`<button class="${S.view==k?'on':''}${a?' adm':''}" data-act="tab" data-k="${k}">${l}</button>`).join('');
- $('#app').innerHTML=({rank:vRank,prizes:vPrizes,tes:vTes,rules:vRules,deals:vDeals,config:vConfig}[S.view]||vRank)()+`<p class="foot">© ${EMP} Todos os direitos reservados.</p>`;
+ $('#nav').innerHTML=[['rank','🏆 Ranking'],['prizes','🎁 Prêmios'],['tes','🗺️ Tesouro'],['rules','📜 Regulamento'],['deals','📝 Fechamentos',1],['occ','⚠️ Ocorrências',1],['config','⚙️ Configurar',1]].filter(n=>!(S.pres&&n[2])).map(([k,l,a])=>`<button class="${S.view==k?'on':''}${a?' adm':''}" data-act="tab" data-k="${k}">${l}</button>`).join('');
+ $('#app').innerHTML=({rank:vRank,prizes:vPrizes,tes:vTes,rules:vRules,deals:vDeals,occ:vOcc,config:vConfig}[S.view]||vRank)()+`<p class="foot">© ${EMP} Todos os direitos reservados.</p>`;
  const p=S.team[open];if(p){p.att=p.att||{};p.att[S.amo]=p.att[S.amo]||{f:0,a:0,c:0}}const b=p&&`team.${open}.att.${S.amo}.`;
- $('#modal').innerHTML=nw&&!S.pres?nwModal():p&&!S.pres?`<div class="md" data-act="close"><div class="card"><h3 style="margin-bottom:12px">Editar ${p.n}</h3><div class="f"><div><label>Nome</label>${inp(`team.${open}.n`,p.n)}</div><div><label>Mês de referência</label>${inp('amo',S.amo,'month')}</div>
- <div><label>Faltas injustificadas</label>${inp(b+'f',p.att[S.amo].f,'number','min=0')}</div><div><label>Tarefas atribuídas</label>${inp(b+'a',p.att[S.amo].a,'number','min=0')}</div><div><label>Tarefas concluídas</label>${inp(b+'c',p.att[S.amo].c,'number','min=0')}</div></div>
+ $('#modal').innerHTML=nw&&!S.pres?nwModal():p&&!S.pres?`<div class="md" data-act="close"><div class="card"><h3 style="margin-bottom:12px">Editar ${p.n}</h3><div class="f"><div><label>Nome</label>${inp(`team.${open}.n`,p.n)}</div><div><small>Faltas e tarefas ficam na aba ⚠️ Ocorrências.</small></div></div>
  <div class="row"><button class="btn" data-act="delp">Excluir pessoa</button><button class="btn pri" data-act="close" data-x="1">Pronto</button></div></div></div>`:'';
  document.querySelectorAll('[data-t]').forEach(e=>e.contentEditable=edit&&!S.pres)}
 function setPath(path,v){const k=path.split('.');let o=S;k.slice(0,-1).forEach(x=>o=o[x]);const l=k[k.length-1],m=path.match(/^team\.(\d+)\.n$/);
- if(m){const old=o[l];S.deals.forEach(d=>{if(d.who===old)d.who=v})}o[l]=typeof o[l]==='number'?(+v||0):v}
+ if(m){const old=o[l];S.deals.forEach(d=>{if(d.who===old)d.who=v});S.occ.forEach(d=>{if(d.who===old)d.who=v})}o[l]=typeof o[l]==='number'?(+v||0):v}
 function dl(pres){save();const s=Object.assign({},S,{pres:pres?1:0,view:'rank'}),c=document.documentElement.cloneNode(true);
  c.querySelector('#seed').textContent=JSON.stringify(s).replace(/</g,'\\u003c');c.querySelector('#app').innerHTML='';c.querySelector('#modal').innerHTML='';c.querySelector('body').className='';
  const u=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+c.outerHTML],{type:'text/html'})),l=document.createElement('a');l.href=u;l.download=pres?'Tiger_Gate_Apresentacao.html':'Tiger_Gate_Bonificacao.html';l.click()}
@@ -282,7 +297,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
  if(act=='tab'){S.view=a.dataset.k;save()}else if(act=='per'){S.per=a.dataset.k;save()}else if(act=='mv'){S.ym=ymadd(S.ym,+a.dataset.k);save()}
  else if(act=='open'){open=i;S.amo=S.per=='m'?S.ym:S.amo}else if(act=='close')open=null;
  else if(act=='addp'){S.team.push({n:'Nova pessoa',att:{}});open=S.team.length-1;save()}
- else if(act=='delp'){if(confirm('Excluir esta pessoa e os fechamentos dela?')){const n=S.team[open].n;S.deals=S.deals.filter(d=>d.who!==n);S.team.splice(open,1);open=null;save()}}
+ else if(act=='delp'){if(confirm('Excluir esta pessoa e os fechamentos dela?')){const n=S.team[open].n;S.deals=S.deals.filter(d=>d.who!==n);S.occ=S.occ.filter(d=>d.who!==n);S.team.splice(open,1);open=null;save()}}
  else if(act=='addd'){const t=a.dataset.t0;S.deals.push({d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',tipo:TIPOS.includes(S.fil)?S.fil:'Seguro',cli:'',dur:3,val:0});save()}
  else if(act=='new'){const t=new Date().toISOString().slice(0,10);nw={tipo:a.dataset.k,d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',cli:'',serv:[]}}
  else if(act=='nwt')nw.tipo=a.dataset.k;
@@ -291,6 +306,9 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
  else if(act=='nwsave'){S.deals.push({d:nw.d,who:nw.who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});S.fil=nw.tipo;if(S.view!='rank')S.view='deals';nw=null;save()}
  else if(act=='sv'){const s=S.deals[i].serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k);save()}
  else if(act=='fil'){S.fil=a.dataset.k;save()}
+ else if(act=='newocc'){const t=new Date().toISOString().slice(0,10);S.occ.push({d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',tipo:'Falta',gr:'Leve',obs:''});S.view='occ';save()}
+ else if(act=='delo'){S.occ.splice(i,1);save()}
+ else if(act=='ofil'){S.ofil=a.dataset.k;save()}
  else if(act=='deld'){delDeal(i)}
  else if(act=='delc'){if(confirm('Remover este cliente?'))delDeal(i)}
  else if(act=='unign'){S.ign=[];save()}
