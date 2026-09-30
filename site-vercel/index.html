@@ -129,7 +129,7 @@ tr.nr td:first-child{border-left:5px solid var(--nc)}
 .nw{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 .nw .btn{background:var(--nc);border-color:var(--nc);color:#fff}
 .f2{display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px}
-.cli{margin-top:18px}.cli h3{margin-bottom:4px}.cl{margin-bottom:6px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.cli{margin-top:18px}.cli h3{margin-bottom:4px}.cl{margin-bottom:14px;padding-bottom:6px;border-bottom:1px dashed var(--line)}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
 .chip{background:color-mix(in srgb,var(--nc,var(--acc)) 10%,var(--c));border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px}
 .chip button{border:0;background:none;cursor:pointer;color:var(--mut);margin-left:4px;font-size:12px}
 @media(max-width:800px){.mrow{grid-template-columns:1fr}}
@@ -211,10 +211,13 @@ function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.
  ${[...c.P].sort((a,b)=>a.oc.Grave-b.oc.Grave||a.oc['Média']-b.oc['Média']||a.oc.Leve-b.oc.Leve).map(x=>`<tr><td><b>${esc(x.p.n)}</b></td><td class="n">${x.oc.Leve}</td><td class="n">${x.oc['Média']}</td><td class="n">${x.oc.Grave}</td><td class="n"><b>${x.on}</b></td></tr>`).join('')}
  <tr class="tfo"><td>Total geral</td>${GR.map(g=>`<td class="n">${c.P.reduce((s,x)=>s+x.oc[g],0)}</td>`).join('')}<td class="n">${on}</td></tr></table></div></div>
  <div class="row adm" style="justify-content:flex-start"><button class="btn pri" data-act="addp">➕ Adicionar pessoa</button><small style="align-self:center">Clique numa linha ou no pódio para editar faltas e tarefas.</small></div>
- <div class="card adm cli"><h3>👥 Clientes do período</h3><small style="display:block;margin-bottom:10px">Só aparece no modo edição (some na apresentação). Aqui você lança ou remove fechamentos.</small>
+ <div class="card adm cli"><h3>👥 Clientes por colaboradora</h3><small style="display:block;margin-bottom:10px">Só aparece no modo edição (some na apresentação). Aqui você lança ou remove fechamentos.</small>
  <div class="nw"><b>➕ Novo fechamento:</b>${TIPOS.map((t,i)=>`<button class="btn ni${i}" data-act="new" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
  <div style="margin-bottom:12px"><button class="btn" data-act="newocc">⚠️ Nova ocorrência (falta / tarefa)</button></div>
- ${TIPOS.map((t,i)=>{const M=mos(S.per),a=S.deals.map((d,j)=>({d,j})).filter(x=>x.d.tipo==t&&M.includes(ymo(x.d.d||'')));return `<div class="cl ni${i}"><b>${TI[t]} ${t} (${a.length})</b><div class="chips">${a.map(x=>`<span class="chip" title="${esc(x.d.who)} · ${fd(x.d.d||'')}">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`).join('')||'<small>Nenhum cliente neste período</small>'}</div></div>`}).join('')}
+ ${(()=>{const M=mos(S.per),ins=S.deals.map((d,j)=>({d,j})).filter(x=>M.includes(ymo(x.d.d||''))),names=c.P.map(x=>x.p.n),outros=[...new Set(ins.map(x=>x.d.who).filter(w=>!names.includes(w)))],
+ chip=x=>`<span class="chip" title="${fd(x.d.d||'')}">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`,
+ box=n=>{const mine=ins.filter(x=>x.d.who===n);return `<div class="cl"><b>👤 ${esc(n||'(sem colaboradora)')} <small>(${mine.length} ${mine.length==1?'cliente':'clientes'})</small></b>${TIPOS.map((t,i)=>{const a=mine.filter(x=>x.d.tipo==t);return a.length?`<div class="ni${i}" style="margin:6px 0 0 4px"><small><b>${TI[t]} ${t}</b> (${a.length})</small><div class="chips">${a.map(chip).join('')}</div></div>`:''}).join('')||'<div><small>Nenhum cliente neste período</small></div>'}</div>`};
+ return names.concat(outros).map(box).join('')})()}
  ${(S.ign||[]).length?`<button class="btn" data-act="unign">↩ Restaurar ${S.ign.length} removido(s) do Notion</button>`:''}</div>`}
 function vPrizes(){const R=S.rules,mt=meta(),mi=mIdx(S.ym);
  return `<h1>${T('t4','Premiação')}</h1><p class="sub">${T('s4','Quanto maior o período, maior o prêmio. Vence quem mais fecha.')}</p>
