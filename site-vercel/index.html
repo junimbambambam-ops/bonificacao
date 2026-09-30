@@ -129,6 +129,9 @@ tr.nr td:first-child{border-left:5px solid var(--nc)}
 .nw{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
 .nw .btn{background:var(--nc);border-color:var(--nc);color:#fff}
 .f2{display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px}
+.cli{margin-top:18px}.cli h3{margin-bottom:4px}.cl{margin-bottom:6px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.chip{background:color-mix(in srgb,var(--nc,var(--acc)) 10%,var(--c));border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px}
+.chip button{border:0;background:none;cursor:pointer;color:var(--mut);margin-left:4px;font-size:12px}
 @media(max-width:800px){.mrow{grid-template-columns:1fr}}
 </style>
 </head>
@@ -182,7 +185,8 @@ function meta(){const g=1+S.rules.cresc/100,per=TIPOS.map(t=>{const n=S.deals.fi
 const mIdx=m=>{const[a,b]=S.rules.start.slice(0,7).split('-').map(Number),[y,z]=m.split('-').map(Number);return Math.max(0,Math.min(11,(y-a)*12+z-b))},prize=k=>k=='m'?S.rules.mensal[mIdx(S.ym)]:S.rules.prizes[k];
 const inp=(p,v,t='text',x='')=>`<input type="${t}" value="${String(v).replace(/"/g,'&quot;')}" data-p="${p}" ${x}>`,
  sel=(p,v,o)=>`<select data-p="${p}">${o.map(x=>`<option ${x==v?'selected':''}>${x}</option>`).join('')}</select>`,
- pl=n=>n+' fechamento'+(n==1?'':'s');
+ pl=n=>n+' fechamento'+(n==1?'':'s'),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function delDeal(i){const d=S.deals[i];if(d&&d.nid){S.ign=S.ign||[];if(!S.ign.includes(d.nid))S.ign.push(d.nid)}S.deals.splice(i,1);save()}
 function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.P.reduce((s,x)=>s+x.cnt[t],0),blk=c.P.reduce((s,x)=>s+x.blk,0);
  return `<section class="hero"><div><p class="lab">${EMP}</p><h1>${T('t1','Ranking de Fechamentos')}</h1>
  <div class="pills">${PER.map(([k,l])=>`<button class="${S.per==k?'on':''}" data-act="per" data-k="${k}">${l}</button>`).join('')}
@@ -200,7 +204,11 @@ function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.
  ${c.P.map((x,r)=>`<tr class="${r==0&&x.pts?'first':''}" data-act="open" data-i="${x.i}"><td class="n">${r<3?MED[r]:r+1}</td><td><b>${x.p.n}</b></td>${TIPOS.map(t=>`<td class="n">${x.cnt[t]}</td>`).join('')}<td class="n"><b>${x.pts}</b></td>
  <td>${x.bm.length?`<span class="bd no">🚫 Bloqueada em ${x.bm.map(MN).join(', ')}</span>`:'<span class="bd ok">✅ Elegível</span>'}</td></tr>`).join('')}
  <tr class="tfo"><td class="n">➕</td><td>Total geral</td>${TIPOS.map(t=>`<td class="n">${sm(t)}</td>`).join('')}<td class="n">${c.tot}</td><td>${blk?'🚫 '+blk+' bloqueado(s)':''}</td></tr></table></div>
- <div class="row adm" style="justify-content:flex-start"><button class="btn pri" data-act="addp">➕ Adicionar pessoa</button><small style="align-self:center">Clique numa linha ou no pódio para editar faltas e tarefas.</small></div>`}
+ <div class="row adm" style="justify-content:flex-start"><button class="btn pri" data-act="addp">➕ Adicionar pessoa</button><small style="align-self:center">Clique numa linha ou no pódio para editar faltas e tarefas.</small></div>
+ <div class="card adm cli"><h3>👥 Clientes do período</h3><small style="display:block;margin-bottom:10px">Só aparece no modo edição (some na apresentação). Aqui você lança ou remove fechamentos.</small>
+ <div class="nw"><b>➕ Novo fechamento:</b>${TIPOS.map((t,i)=>`<button class="btn ni${i}" data-act="new" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
+ ${TIPOS.map((t,i)=>{const M=mos(S.per),a=S.deals.map((d,j)=>({d,j})).filter(x=>x.d.tipo==t&&M.includes(ymo(x.d.d||'')));return `<div class="cl ni${i}"><b>${TI[t]} ${t} (${a.length})</b><div class="chips">${a.map(x=>`<span class="chip">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`).join('')||'<small>Nenhum cliente neste período</small>'}</div></div>`}).join('')}
+ ${(S.ign||[]).length?`<button class="btn" data-act="unign">↩ Restaurar ${S.ign.length} removido(s) do Notion</button>`:''}</div>`}
 function vPrizes(){const R=S.rules,mt=meta(),mi=mIdx(S.ym);
  return `<h1>${T('t4','Premiação')}</h1><p class="sub">${T('s4','Quanto maior o período, maior o prêmio. Vence quem mais fecha.')}</p>
  <div class="gate">🎯 ${R.gate=='Sim'?`Prêmios liberados com a meta de <b>+${R.cresc}%</b> em fechamentos de clientes (${mt.m} clientes). ${mt.hit?'✅ Meta atingida!':'Já são '+mt.p+'% da meta: faltam '+(mt.m-mt.n)+' clientes.'}`:'Prêmios liberados conforme o ranking.'}</div>
@@ -280,10 +288,12 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
  else if(act=='nwt')nw.tipo=a.dataset.k;
  else if(act=='nwv'){const s=nw.serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k)}
  else if(act=='nwc')nw=null;
- else if(act=='nwsave'){S.deals.push({d:nw.d,who:nw.who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});S.fil=nw.tipo;S.view='deals';nw=null;save()}
+ else if(act=='nwsave'){S.deals.push({d:nw.d,who:nw.who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});S.fil=nw.tipo;if(S.view!='rank')S.view='deals';nw=null;save()}
  else if(act=='sv'){const s=S.deals[i].serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k);save()}
  else if(act=='fil'){S.fil=a.dataset.k;save()}
- else if(act=='deld'){S.deals.splice(i,1);save()}
+ else if(act=='deld'){delDeal(i)}
+ else if(act=='delc'){if(confirm('Remover este cliente?'))delDeal(i)}
+ else if(act=='unign'){S.ign=[];save()}
  else if(act=='edit'){edit=!edit;$('#be').textContent=edit?'✏️ Editando: clique nos textos':'✏️ Modo edição'}
  else if(act=='save')save();
  else if(act=='theme'){S.theme=S.theme=='dark'?'light':'dark';save()}
@@ -292,7 +302,7 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
 render();
 </script>
 
-<button id="btnSyncNotion" onclick="sincronizarNotionFinal()" style="
+<button id="btnSyncNotion" class="adm" onclick="sincronizarNotionFinal()" style="
 position:fixed;
 right:20px;
 bottom:20px;
@@ -305,7 +315,7 @@ font-weight:700;
 background:#f5c400;">
 🔄 Sincronizar Notion
 </button>
-<div id="syncStatusNotion" style="
+<div id="syncStatusNotion" class="adm" style="
 position:fixed;
 right:20px;
 bottom:70px;
@@ -321,15 +331,16 @@ async function sincronizarNotionFinal(){
   const status = document.getElementById("syncStatusNotion");
   const btn = document.getElementById("btnSyncNotion");
   const norm = s => String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+  // apelidos: como o nome aparece no Notion -> nome da equipe (Carol = Caroline)
+  const ALIAS = { carol: "caroline" };
 
   try{
     if(btn) btn.disabled = true;
     if(status) status.innerText = "Sincronizando Notion...";
-
     if(!location.protocol.startsWith("http")) throw new Error("Abra pelo endereço do site (Vercel), não pelo arquivo no computador");
+
     const response = await fetch("/api/notion");
     const data = await response.json().catch(() => null);
-
     if(!response.ok || !data || !Array.isArray(data.fechamentos)){
       const det = data && (data.error || (data.erros && data.erros.map(e => e.banco+": "+e.erro).join(" | ")));
       throw new Error(det || ("HTTP " + response.status));
@@ -337,34 +348,45 @@ async function sincronizarNotionFinal(){
 
     const nomes = S.team.map(p => p.n);
     const semMatch = new Set();
+    const casar = nome => {
+      const n = norm(String(nome||"").split(/[,;&]/)[0]);
+      if(!n) return "";
+      let x = nomes.find(t => norm(t) === n);
+      if(x) return x;
+      if(ALIAS[n]){ x = nomes.find(t => norm(t) === ALIAS[n]); if(x) return x; }
+      const c = nomes.filter(t => norm(t).startsWith(n) || n.startsWith(norm(t)));
+      return c.length === 1 ? c[0] : String(nome).split(/[,;&]/)[0].trim();
+    };
 
-    // guarda os serviços já marcados em fechamentos vindos do Notion
+    const ign = new Set(S.ign || []);
     const antigos = {};
-    S.deals.filter(d => d.src === "notion").forEach(d => { antigos[[d.who,d.cli,d.d].join("|")] = d.serv || []; });
+    S.deals.forEach(d => { if(d.nid) antigos[d.nid] = d; });
 
-    const convertidos = data.fechamentos.map(item => {
-      const who = nomes.find(n => norm(n) === norm(item.funcionario)) || (item.funcionario || "");
+    let semData = 0;
+    const novos = data.fechamentos.filter(f => !f.id || !ign.has(f.id)).map(f => {
+      const who = casar(f.funcionario);
       if(!nomes.includes(who)) semMatch.add(who || "(vazio)");
-      const d = (item.data || "").slice(0,10);
-      const cli = item.cliente || "";
+      const d = (f.data || "").slice(0,10);
+      if(!d) semData++;
+      const old = f.id ? antigos[f.id] : null;
       return {
-        d, who, cli,
-        tipo: item.tipo === "MKT" ? "Marketing" : (item.tipo || "Seguro"),
-        serv: antigos[[who,cli,d].join("|")] || [],
-        val: 0, dur: 3, src: "notion"
+        d, who, cli: f.cliente || "",
+        tipo: f.tipo === "MKT" ? "Marketing" : (f.tipo || "Seguro"),
+        serv: old ? (old.serv || []) : [],
+        val: 0, dur: 3, nid: f.id, src: "notion"
       };
     });
 
-    // mantém os fechamentos lançados à mão (ex.: Aluguel de Motos) e troca só os do Notion
-    S.deals = S.deals.filter(d => d.src !== "notion").concat(convertidos);
+    // mantém tudo que você lançou à mão; troca só o que veio do Notion
+    S.deals = S.deals.filter(d => !d.nid && d.src !== "notion").concat(novos);
     save();
     render();
 
-    let msg = "Sincronizado: " + convertidos.length + " fechamentos";
+    let msg = "Sincronizado: " + novos.length + " fechamentos do Notion";
     if(data.erros && data.erros.length) msg += " | Falhou: " + data.erros.map(e => e.banco).join(", ");
-    if(semMatch.size) msg += " | Sem colaboradora na equipe: " + [...semMatch].join(", ");
+    if(semMatch.size) msg += " | Nome sem correspondência na equipe: " + [...semMatch].join(", ");
+    if(semData) msg += " | " + semData + " sem data (não entram no ranking)";
     if(status) status.innerText = msg;
-
   }catch(e){
     console.error(e);
     if(status) status.innerText = "Erro: " + e.message;

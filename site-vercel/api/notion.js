@@ -102,6 +102,7 @@ async function lerBanco(db) {
       const comp = find(p, ["comprovante", "arquivo", "anexo"]);
       if (hasValue(valor) && hasFile(comp)) {
         out.push({
+          id: item.id,
           tipo: "Seguro",
           funcionario: db.nome,
           cliente: titleProperty(p) || text(find(p, ["fechamento", "cliente", "nome"])),
@@ -114,6 +115,7 @@ async function lerBanco(db) {
       const cliente = titleProperty(p);
       if (cliente) {
         out.push({
+          id: item.id,
           tipo: "Marketing",
           funcionario: text(find(p, ["funcion", "responsavel", "colaborador"])),
           cliente,
