@@ -12,10 +12,8 @@ const DATABASES = [
 ];
 
 const headers = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Content-Type": "application/json"
+  "Content-Type": "application/json",
+  "Cache-Control": "no-store"
 };
 
 // Busca TODAS as páginas do banco (o Notion devolve no máximo 100 por vez)
@@ -129,7 +127,7 @@ async function lerBanco(db) {
 
 module.exports = async (req, res) => {
   Object.entries(headers).forEach(([k, v]) => res.setHeader(k, v));
-  if (req.method === "OPTIONS") return res.status(200).end();
+  if (!(await require("./_auth")(req, res))) return; // exige a senha do painel
 
   const debug = req.query && req.query.debug;
   const fechamentos = [];
