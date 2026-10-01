@@ -11,6 +11,25 @@ const DATABASES = [
   { nome: "MKT",      id: "2d7a8b9d89e447749775c0a28d03e978", tipo: "Marketing" }
 ];
 
+// ================== CAMPOS QUE SÃO LIDOS DO NOTION ==================
+// Para mudar, basta trocar os nomes abaixo. Escreva só um pedaço do nome da coluna
+// (não importa maiúscula, minúscula ou acento). Vale o primeiro que for encontrado.
+const CAMPOS = {
+  Seguro: {
+    cliente: ["fechamento", "cliente", "nome"],        // só é usado se a coluna de título estiver vazia
+    data: ["data", "dia"],                              // dia do fechamento
+    valor: ["valor"],                                   // precisa estar preenchido ([] = não exigir)
+    comprovante: ["comprovante", "arquivo", "anexo"]    // precisa ter arquivo ou link ([] = não exigir)
+  },
+  Marketing: {
+    funcionario: ["funcion", "responsavel", "colaborador"], // quem fechou
+    data: ["data", "dia"]
+  }
+};
+// O cliente é sempre o nome da página (coluna de título). Nos bancos de Seguro, a
+// colaboradora é o nome do banco (lista DATABASES acima).
+// ====================================================================
+
 const headers = {
   "Content-Type": "application/json",
   "Cache-Control": "no-store"
@@ -96,28 +115,30 @@ async function lerBanco(db) {
     const p = item.properties;
 
     if (db.tipo === "Seguro") {
-      const valor = find(p, ["valor"]);
-      const comp = find(p, ["comprovante", "arquivo", "anexo"]);
-      if (hasValue(valor) && hasFile(comp)) {
+      const C = CAMPOS.Seguro;
+      const valorOk = !C.valor.length || hasValue(find(p, C.valor));
+      const compOk = !C.comprovante.length || hasFile(find(p, C.comprovante));
+      if (valorOk && compOk) {
         out.push({
           id: item.id,
           tipo: "Seguro",
           funcionario: db.nome,
-          cliente: titleProperty(p) || text(find(p, ["fechamento", "cliente", "nome"])),
-          data: dateOf(find(p, ["data", "dia"]))
+          cliente: titleProperty(p) || text(find(p, C.cliente)),
+          data: dateOf(find(p, C.data))
         });
       }
     }
 
     if (db.tipo === "Marketing") {
+      const C = CAMPOS.Marketing;
       const cliente = titleProperty(p);
       if (cliente) {
         out.push({
           id: item.id,
           tipo: "Marketing",
-          funcionario: text(find(p, ["funcion", "responsavel", "colaborador"])),
+          funcionario: text(find(p, C.funcionario)),
           cliente,
-          data: dateOf(find(p, ["data", "dia"]))
+          data: dateOf(find(p, C.data))
         });
       }
     }

@@ -169,7 +169,7 @@ const brl=n=>(+n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),y
 const ymadd=(s,n)=>{let[y,m]=s.split('-').map(Number);m+=n;y+=Math.floor((m-1)/12);m=(m-1)%12+1;return y+'-'+String(m).padStart(2,'0')};
 const MN=s=>{const[y,m]=s.split('-');return['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][m-1]+'/'+y};
 const D0={ts:0,occ:[],texts:{},view:'rank',per:'m',ym:'2026-10',amo:'2026-10',team:['Adriana','Bruna','Caroline'].map(n=>({n,att:{}})),deals:[],
- rules:{maxF:0,minT:90,pf:1,pgv:2,pg:{Leve:0.5,'Média':1,Grave:2},gate:'Não',start:'2026-10-01',cresc:20,metaAno:200,metaTit:'Meta do final de ano',mb:{Seguro:20,Marketing:20,'Aluguel de Motos':20},
+ rules:{maxF:0,minT:90,pf:1,pgv:2,pg:{Leve:0.5,'Média':1,Grave:2},gate:'Não',start:'2026-10-01',cresc:20,metaAno:200,metaIni:'',metaTit:'Meta do final de ano',mb:{Seguro:20,Marketing:20,'Aluguel de Motos':20},
  prizes:{3:'Jantar no Coco Bambu para 2 pessoas',6:'Jantar no Coco Bambu para 3 pessoas (família)',9:'Fim de semana com hospedagem',12:'Viagem de premiação (destino a definir)'},cp:{3:300,6:450,9:1200,12:6000},
  mensal:['Dia de folga','Vale-presente de delivery','Cesta de café gourmet','Vale happy hour','Caixa de chocolates','Saída mais cedo na sexta','Vale-presente de loja online','Almoço por conta da empresa','Vale cinema para 2','Vale-presente de livraria','Kit churrasco','Vale-presente de fim de ano'],
  cm:[80,100,90,100,70,0,100,120,120,100,150,150],
@@ -191,7 +191,7 @@ function calc(per){const M=mos(per),P=S.team.map((p,i)=>{const ds=S.deals.filter
  P.sort((a,b)=>b.pts-a.pts||(a.last<b.last?-1:a.last>b.last?1:0));const cat={};
  TIPOS.forEach(t=>{const mx=Math.max(0,...P.map(x=>x.cnt[t]));cat[t]={mx,who:mx?P.filter(x=>x.cnt[t]==mx).map(x=>x.p.n):[]}});
  return{P,cat,tot:P.reduce((s,x)=>s+x.pts,0)}}
-function meta(){const per=TIPOS.map(t=>({t,n:S.deals.filter(d=>d.tipo==t).length})),n=per.reduce((s,x)=>s+x.n,0),m=+S.rules.metaAno||0;
+function meta(){const per=TIPOS.map(t=>({t,n:S.deals.filter(d=>d.tipo==t&&d.d>=(S.rules.metaIni||S.rules.start)).length})),n=per.reduce((s,x)=>s+x.n,0),m=+S.rules.metaAno||0;
  return{per,n,m,p:m?Math.round(n/m*100):0,falta:Math.max(0,m-n),hit:m>0&&n>=m}}
 const mIdx=m=>{const[a,b]=S.rules.start.slice(0,7).split('-').map(Number),[y,z]=m.split('-').map(Number);return Math.max(0,Math.min(11,(y-a)*12+z-b))},prize=k=>k=='m'?S.rules.mensal[mIdx(S.ym)]:S.rules.prizes[k];
 const inp=(p,v,t='text',x='')=>`<input type="${t}" value="${String(v).replace(/"/g,'&quot;')}" data-p="${p}" ${x}>`,
@@ -208,7 +208,7 @@ function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.
  <div class="cats">${TIPOS.map((t,i)=>{const k=c.cat[t],n=sm(t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${n}</div><small>${n==1?'fechamento':'fechamentos'}</small>
  <div class="ppl">${k.mx?`<div><span>⭐ Destaque</span><b>${k.who.join(' e ')} (${k.mx})</b></div>`:'<div><span>Sem fechamentos ainda</span></div>'}</div></div>`}).join('')}
  <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${c.tot}</div><small>fechamentos no período</small><div class="ppl"><div><span>Seguro + Marketing + Motos</span></div></div></div></div>
- <div class="card metaC"><b>🎯 ${esc(S.rules.metaTit)}: ${mt.m} clientes fechados</b><small style="display:block">Acumulado do programa, somando todos os nichos</small>
+ <div class="card metaC"><b>🎯 ${esc(S.rules.metaTit)}: ${mt.m} clientes fechados</b><small style="display:block">Contando a partir de ${fd(S.rules.metaIni||S.rules.start)}, somando todos os nichos</small>
  <div class="mrow tt"><span><b>➕ Total geral</b></span><div class="bar"><i style="width:${Math.min(100,mt.p)}%"></i></div><b>${mt.p}% <small>(${mt.n} de ${mt.m})</small></b></div>
  ${mt.per.map((x,i)=>`<div class="mrow ni${i}"><span>${TI[x.t]} ${x.t}</span><div class="bar"><i style="width:${mt.m?Math.min(100,Math.round(x.n/mt.m*100)):0}%"></i></div><b>${x.n} <small>clientes</small></b></div>`).join('')}
  <small style="display:block;margin-top:6px">${mt.hit?'🎉 Meta do ano batida!':'Faltam '+mt.falta+' clientes para a meta.'}</small></div>
@@ -248,7 +248,7 @@ function vRules(){const R=S.rules,mt=meta(),cl=[
  ['CLÁUSULA 3ª – DAS FALTAS E TAREFAS',[`Faltas, tarefas não feitas e tarefas não concluídas são registradas e classificadas em leve, média ou grave.`,`Elas não retiram pontos, não bloqueiam fechamentos e não alteram a posição no ranking de fechamentos.`,`São apuradas em quadro separado, com a contagem de faltas leves, médias e graves de cada colaboradora.`]],
  ['CLÁUSULA 4ª – DOS PERÍODOS DE APURAÇÃO',[`A apuração é mensal e também acumulada em 3, 6, 9 e 12 meses, contados a partir de ${fd(R.start)}.`,`Cada período tem premiação própria, sempre maior que a do período anterior. Nenhum prêmio mensal ultrapassa o prêmio de 3 meses.`]],
  ['CLÁUSULA 5ª – DA PREMIAÇÃO',[`Prêmios mensais: ${R.mensal.map((p,i)=>`${i+1}º mês, ${p}`).join('; ')}.`,...PER.filter(x=>x[0]!='m').map(([k,l])=>`Campeã de ${l}: ${R.prizes[k]}.`),`Destaque por categoria: ${R.cat}.`]],
- ['CLÁUSULA 6ª – DA META DO ANO',[`A meta do final de ano é de ${mt.m} clientes fechados, somando Seguro, Marketing e Aluguel de Motos.`,`A entrega dos prêmios independe da meta: o resultado do ano será apurado ao final do programa.`]],
+ ['CLÁUSULA 6ª – DA META DO ANO',[`A meta do final de ano é de ${mt.m} clientes fechados, somando Seguro, Marketing e Aluguel de Motos, contados a partir de ${fd(R.metaIni||R.start)}.`,`A entrega dos prêmios independe da meta: o resultado do ano será apurado ao final do programa.`]],
  ['CLÁUSULA 7ª – DA CORRIDA AO TESOURO',[`Quem primeiro alcançar ${R.tes.goal} fechamentos válidos no programa conquista o Tesouro: ${R.tes.prize}.`]],
  ['CLÁUSULA 8ª – DO DESEMPATE',[`Havendo empate no número de fechamentos, vence quem atingiu o total primeiro.`]],
  ['CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS',[`Os casos omissos serão decididos pela Diretoria da ${EMP}.`,`A empresa poderá alterar este regulamento mediante aviso prévio à equipe.`]]];
@@ -282,7 +282,7 @@ function nwModal(){return `<div class="md" data-act="nwc"><div class="card"><h3 
 function vConfig(){const R=S.rules,n=(p,l,v)=>`<div><label>${l}</label>${inp(p,v,'number','step=any min=0')}</div>`,tx=(p,l,v)=>`<div><label>${l}</label>${inp(p,v)}</div>`,w=[],c3=+R.cp[3];
  R.mensal.forEach((p,i)=>{if(+R.cm[i]>c3)w.push(`${i+1}º mês (${p}) passa o prêmio de 3 meses`)});[3,6,9,12].forEach((k,i,a)=>{if(i&&+R.cp[k]<+R.cp[a[i-1]])w.push(`O prêmio de ${k} meses é menor que o de ${a[i-1]} meses`)});
  return `<h1>${T('t3','⚙️ Configurar')}</h1><p class="sub">O que você muda aqui atualiza ranking, prêmios e regulamento.</p>
- <div class="card" style="margin-bottom:14px"><h3>Programa e meta do ano</h3><div class="f"><div><label>Início do programa</label>${inp('rules.start',R.start,'date')}</div>${n('rules.metaAno','Meta do final de ano (clientes fechados)',R.metaAno)}<div><label>Título da meta</label>${inp('rules.metaTit',R.metaTit)}</div></div><small style="display:block;margin-top:8px">Os prêmios não dependem da meta. Ela só mostra o andamento do ano.</small></div>
+ <div class="card" style="margin-bottom:14px"><h3>Programa e meta do ano</h3><div class="f"><div><label>Início do programa</label>${inp('rules.start',R.start,'date')}</div>${n('rules.metaAno','Meta do final de ano (clientes fechados)',R.metaAno)}<div><label>Início da contagem da meta</label>${inp('rules.metaIni',R.metaIni||'','date')}</div><div><label>Título da meta</label>${inp('rules.metaTit',R.metaTit)}</div></div><small style="display:block;margin-top:8px">A meta só conta fechamentos a partir da data de "Início da contagem da meta" (vazio = usa o início do programa). Isso não muda o ranking. Os prêmios não dependem da meta.</small></div>
   <div class="gate" ${w.length?'style="border-color:var(--no)"':''}>${w.length?'⚠️ '+w.join('<br>⚠️ '):'✅ Todos os prêmios mensais estão abaixo do de 3 meses e a escada só sobe.'}</div>
  <div class="card" style="margin-bottom:14px"><h3>Prêmios por período (custo estimado em R$, só para você conferir)</h3>${[3,6,9,12].map(k=>`<div class="f2"><div><label>Campeã de ${k} meses</label>${inp('rules.prizes.'+k,R.prizes[k])}</div>${n('rules.cp.'+k,'Custo',R.cp[k])}</div>`).join('')}</div>
  <div class="card" style="margin-bottom:14px"><h3>Prêmios de cada mês</h3>${R.mensal.map((p,i)=>`<div class="f2"><div><label>${i+1}º mês (${MN(ymadd(R.start.slice(0,7),i))})</label>${inp('rules.mensal.'+i,p)}</div>${n('rules.cm.'+i,'Custo',R.cm[i])}</div>`).join('')}</div>
