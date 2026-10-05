@@ -177,8 +177,12 @@ const D0={ts:0,occ:[],texts:{},view:'rank',per:'m',ym:'2026-10',amo:'2026-10',te
 const SV=[['Disparo em massa','📨'],['Tráfego','🎯'],['Gerenciamento','🧩'],['Gráfica','🖨️']];
 const GR=['Leve','Média','Grave'],GI={Leve:'🟡','Média':'🟠',Grave:'🔴'},OT=['Falta','Tarefa não feita','Tarefa não concluída','Outro'];
 function norm(s){const R=s.rules,d=D0.rules;s.occ=s.occ||[];R.pf=1;if(R.pgv!==2){R.pg={...d.pg};R.pgv=2}R.pg={...d.pg,...R.pg};if(R.mv!==3){R.gate='Não';R.mv=3}R.metaAno=+R.metaAno||d.metaAno;R.metaTit=R.metaTit||d.metaTit;R.mb=R.mb||{...d.mb};R.mensal=R.mensal||[...d.mensal];R.cm=R.cm||[...d.cm];R.cp=R.cp||{...d.cp};R.prizes={...d.prizes,...R.prizes};s.deals.forEach(x=>x.serv=x.serv||[]);return s}
+// Garante que toda colaboradora citada num fechamento ou ocorrência exista de verdade na equipe.
+// Sem isso, um nome digitado "na mão" aparecia na lista mas nunca pontuava, pois o ranking só soma quem está em S.team.
+function syncTeam(s){s=s||S;const have=new Set(s.team.map(p=>p.n));let changed=false;const add=n=>{n=String(n||'').trim();if(n&&!have.has(n)){s.team.push({n,att:{}});have.add(n);changed=true}};
+ (s.deals||[]).forEach(d=>add(d.who));(s.occ||[]).forEach(o=>add(o.who));return changed}
 function load(){let a=null,b=null;try{a=JSON.parse(localStorage.getItem('tg_bonus2'))}catch(e){}try{b=JSON.parse($('#seed').textContent)}catch(e){}
- if(b&&b.pres)return norm(b);const s=(a&&b)?(a.ts>=b.ts?a:b):(a||b);return norm(s||structuredClone(D0))}
+ if(b&&b.pres){const s=norm(b);syncTeam(s);return s}const s=norm((a&&b)?(a.ts>=b.ts?a:b):(a||b)||structuredClone(D0));syncTeam(s);return s}
 let S=load(),open=null,edit=false,nw=null;
 const T=(k,d)=>`<span data-t="${k}">${S.texts[k]??d}</span>`;
 function save(){S.ts=Date.now();try{localStorage.setItem('tg_bonus2',JSON.stringify(S))}catch(e){}
@@ -275,8 +279,10 @@ function vOcc(){const F=S.ofil||'all',R=S.rules,rows=S.occ.map((o,i)=>({o,i})).f
  <div class="wrap"><table><tr><th>Data</th><th>Colaboradora</th><th>Tipo</th><th>Gravidade</th><th>Observação</th><th></th></tr>
  ${rows.map(({o,i})=>`<tr><td>${inp(`occ.${i}.d`,o.d,'date')}</td><td>${sel(`occ.${i}.who`,o.who,S.team.map(p=>p.n))}</td><td>${sel(`occ.${i}.tipo`,o.tipo,OT)}</td><td>${sel(`occ.${i}.gr`,o.gr,GR)}</td><td>${inp(`occ.${i}.obs`,o.obs||'')}</td><td><button class="btn" data-act="delo" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||'<tr><td colspan=6>Nenhuma ocorrência lançada ainda.</td></tr>'}
  <tr class="tfo"><td colspan=6>Total: ${rows.length}</td></tr></table></div>`}
-function nwModal(){return `<div class="md" data-act="nwc"><div class="card"><h3 style="margin-bottom:12px">Novo fechamento</h3><div class="chs">${TIPOS.map((t,i)=>`<button class="ni${i}${nw.tipo==t?' on':''}" data-act="nwt" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
- <div class="f"><div><label>Data</label><input type="date" value="${nw.d}" data-nw="d"></div><div><label>Colaboradora</label><select data-nw="who">${S.team.map(p=>`<option ${p.n==nw.who?'selected':''}>${p.n}</option>`).join('')}</select></div><div><label>Cliente</label><input value="${nw.cli.replace(/"/g,'&quot;')}" data-nw="cli"></div></div>
+function nwModal(){const nova=nw.who==='__nova__';
+ return `<div class="md" data-act="nwc"><div class="card"><h3 style="margin-bottom:12px">Novo fechamento</h3><div class="chs">${TIPOS.map((t,i)=>`<button class="ni${i}${nw.tipo==t?' on':''}" data-act="nwt" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
+ <div class="f"><div><label>Data</label><input type="date" value="${nw.d}" data-nw="d"></div><div><label>Colaboradora</label><select data-nw="who">${S.team.map(p=>`<option ${!nova&&p.n==nw.who?'selected':''}>${esc(p.n)}</option>`).join('')}<option value="__nova__" ${nova?'selected':''}>➕ Nova colaboradora…</option></select></div><div><label>Cliente</label><input value="${nw.cli.replace(/"/g,'&quot;')}" data-nw="cli"></div></div>
+ ${nova?`<div class="f"><div><label>Nome da nova colaboradora</label><input value="${String(nw.newName||'').replace(/"/g,'&quot;')}" data-nw="newName" placeholder="Ex.: Alfredo" autofocus></div></div>`:''}
  ${nw.tipo=='Marketing'?`<label style="font-size:12px;color:var(--mut)">Serviços contratados</label><div class="ni1" style="margin-bottom:8px">${SV.map(([n,e])=>`<button class="sv ${nw.serv.includes(n)?'on':''}" data-act="nwv" data-k="${n}">${e} ${n}</button>`).join('')}</div>`:''}
  <div class="row"><button class="btn" data-act="nwc" data-x="1">Cancelar</button><button class="btn pri" data-act="nwsave" data-x="1">Salvar em ${TI[nw.tipo]} ${nw.tipo}</button></div></div></div>`}
 function vConfig(){const R=S.rules,n=(p,l,v)=>`<div><label>${l}</label>${inp(p,v,'number','step=any min=0')}</div>`,tx=(p,l,v)=>`<div><label>${l}</label>${inp(p,v)}</div>`,w=[],c3=+R.cp[3];
@@ -300,7 +306,7 @@ function setPath(path,v){const k=path.split('.');let o=S;k.slice(0,-1).forEach(x
 function dl(pres){save();const s=Object.assign({},S,{pres:pres?1:0,view:'rank'}),c=document.documentElement.cloneNode(true);
  c.querySelector('#seed').textContent=JSON.stringify(s).replace(/</g,'\\u003c');c.querySelector('#app').innerHTML='';c.querySelector('#modal').innerHTML='';c.querySelector('body').className='';
  const u=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+c.outerHTML],{type:'text/html'})),l=document.createElement('a');l.href=u;l.download=pres?'Tiger_Gate_Apresentacao.html':'Tiger_Gate_Bonificacao.html';l.click()}
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.nw){nw[t.dataset.nw]=t.value;return}if(t.id=='pal'){S.pal=t.value;save();render();return}const p=t.dataset.p;if(!p)return;
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.nw){nw[t.dataset.nw]=t.value;if(t.dataset.nw=='who')render();return}if(t.id=='pal'){S.pal=t.value;save();render();return}const p=t.dataset.p;if(!p)return;
  setPath(p,t.tagName=='SELECT'&&/\.dur$/.test(p)?+t.value:t.value);save();render()});
 document.addEventListener('focusout',e=>{const k=e.target.dataset&&e.target.dataset.t;if(k){S.texts[k]=e.target.innerHTML;save()}});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act,i=+a.dataset.i;
@@ -315,7 +321,8 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
  else if(act=='nwt')nw.tipo=a.dataset.k;
  else if(act=='nwv'){const s=nw.serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k)}
  else if(act=='nwc')nw=null;
- else if(act=='nwsave'){S.deals.push({d:nw.d,who:nw.who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});S.fil=nw.tipo;if(S.view!='rank')S.view='deals';nw=null;save()}
+ else if(act=='nwsave'){const who=nw.who==='__nova__'?String(nw.newName||'').trim():nw.who;if(!who){alert('Informe o nome da nova colaboradora.');return}
+ S.deals.push({d:nw.d,who,tipo:nw.tipo,cli:nw.cli,serv:nw.serv});syncTeam(S);S.fil=nw.tipo;if(S.view!='rank')S.view='deals';nw=null;save()}
  else if(act=='sv'){const s=S.deals[i].serv,k=a.dataset.k;s.includes(k)?s.splice(s.indexOf(k),1):s.push(k);save()}
  else if(act=='fil'){S.fil=a.dataset.k;save()}
  else if(act=='newocc'){const t=new Date().toISOString().slice(0,10);S.occ.push({d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',tipo:'Falta',gr:'Leve',obs:''});S.view='occ';save()}
@@ -410,6 +417,7 @@ async function sincronizarNotionFinal(){
 
     // mantém tudo que você lançou à mão; troca só o que veio do Notion
     S.deals = S.deals.filter(d => !d.nid && d.src !== "notion").concat(novos);
+    syncTeam(S); // garante que toda colaboradora que veio do Notion também exista na equipe e pontue
     save();
     render();
 
