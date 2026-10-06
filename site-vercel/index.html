@@ -72,7 +72,8 @@ tr.first td{background:color-mix(in srgb,var(--acc) 16%,var(--c))}
 .doc ol{list-style:none;padding:0}.doc li{margin:6px 0;padding-left:40px;text-indent:-40px}.doc li b{display:inline-block;width:40px;text-indent:0}
 .f{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
 .f label{display:block;font-size:12px;color:var(--mut)}
-td input,td select,.f input,.f select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+td input,td select,.f input,.f select,.np input{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.np{margin-bottom:20px}
 .btn{border:1px solid var(--line);background:var(--c);border-radius:8px;padding:7px 14px;cursor:pointer}.btn.pri{background:var(--pri);color:#fff;border-color:var(--pri)}
 .row{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
 .md{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
@@ -107,6 +108,7 @@ tr.nr td:first-child{border-left:5px solid var(--nc)}
 .flt{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .flt button{border:1px solid var(--line);background:var(--c);border-radius:20px;padding:5px 16px;cursor:pointer}
 .flt button.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+.flt select{border:1px solid var(--line);background:var(--c);border-radius:20px;padding:5px 12px}
 .ladder{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));align-items:stretch;gap:16px;margin-bottom:20px}
 .step{padding-top:20px!important}
 .lvl{height:6px;background:var(--c2);border-radius:6px;margin:0 0 12px;overflow:hidden}.lvl i{display:block;height:100%;background:var(--acc)}
@@ -179,11 +181,11 @@ const GR=['Leve','Média','Grave'],GI={Leve:'🟡','Média':'🟠',Grave:'🔴'}
 function norm(s){const R=s.rules,d=D0.rules;s.occ=s.occ||[];R.pf=1;if(R.pgv!==2){R.pg={...d.pg};R.pgv=2}R.pg={...d.pg,...R.pg};if(R.mv!==3){R.gate='Não';R.mv=3}R.metaAno=+R.metaAno||d.metaAno;R.metaTit=R.metaTit||d.metaTit;R.mb=R.mb||{...d.mb};R.mensal=R.mensal||[...d.mensal];R.cm=R.cm||[...d.cm];R.cp=R.cp||{...d.cp};R.prizes={...d.prizes,...R.prizes};s.deals.forEach(x=>x.serv=x.serv||[]);return s}
 // Garante que toda colaboradora citada num fechamento ou ocorrência exista de verdade na equipe.
 // Sem isso, um nome digitado "na mão" aparecia na lista mas nunca pontuava, pois o ranking só soma quem está em S.team.
-function syncTeam(s){s=s||S;const have=new Set(s.team.map(p=>p.n));let changed=false;const add=n=>{n=String(n||'').trim();if(n&&!have.has(n)){s.team.push({n,att:{}});have.add(n);changed=true}};
+function syncTeam(s){s=s||S;const have=new Set(s.team.map(p=>p.n)),ign=new Set(s.ignP||[]);let changed=false;const add=n=>{n=String(n||'').trim();if(n&&!have.has(n)&&!ign.has(n)){s.team.push({n,att:{}});have.add(n);changed=true}};
  (s.deals||[]).forEach(d=>add(d.who));(s.occ||[]).forEach(o=>add(o.who));return changed}
 function load(){let a=null,b=null;try{a=JSON.parse(localStorage.getItem('tg_bonus2'))}catch(e){}try{b=JSON.parse($('#seed').textContent)}catch(e){}
  if(b&&b.pres){const s=norm(b);syncTeam(s);return s}const s=norm((a&&b)?(a.ts>=b.ts?a:b):(a||b)||structuredClone(D0));syncTeam(s);return s}
-let S=load(),open=null,edit=false,nw=null;
+let S=load(),open=null,edit=false,nw=null,npName='';
 const T=(k,d)=>`<span data-t="${k}">${S.texts[k]??d}</span>`;
 function save(){S.ts=Date.now();try{localStorage.setItem('tg_bonus2',JSON.stringify(S))}catch(e){}
  $('#ind').textContent='✔ Salvo';clearTimeout(save.t);save.t=setTimeout(()=>$('#ind').textContent='',1800)}
@@ -209,6 +211,8 @@ function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.
  ${S.per=='m'?`<button class="mv" data-act="mv" data-k="-1" aria-label="Mês anterior">‹</button><b>${MN(S.ym)}</b><button class="mv" data-act="mv" data-k="1" aria-label="Próximo mês">›</button>`:''}</div>
  <p class="sub">${S.per=='m'?'Apuração do mês':'Acumulado dos '+S.per+' primeiros meses, desde '+fd(S.rules.start)}. Cada cliente fechado vale 1 ponto. Pontua quem mais fecha.</p></div>
  <div class="spot">${lead?`<small>👑 Líder do período</small><b>${L.p.n}</b><small>${L.pts} ${L.pts==1?'ponto':'pontos'}</small>`:'<small>🚀 Período aberto</small><b>Sem fechamentos</b><small>Seja a primeira!</small>'}</div></section>
+ <div class="card adm np"><h3>➕ Nova colaboradora</h3><small style="display:block;margin-bottom:10px">Adicione quem vai participar do ranking. Ela já entra pontuando assim que você registrar um fechamento para ela.</small>
+ <div class="row" style="justify-content:flex-start;margin-top:0"><input id="npIn" placeholder="Nome da colaboradora, ex.: Marcio" value="${esc(npName||'')}" data-npn="1" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();document.querySelector('[data-act=addp2]').click();}" style="flex:1;max-width:320px"><button class="btn pri" data-act="addp2">Adicionar</button></div></div>
  <div class="cats">${TIPOS.map((t,i)=>{const k=c.cat[t],n=sm(t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${n}</div><small>${n==1?'fechamento':'fechamentos'}</small>
  <div class="ppl">${k.mx?`<div><span>⭐ Destaque</span><b>${k.who.join(' e ')} (${k.mx})</b></div>`:'<div><span>Sem fechamentos ainda</span></div>'}</div></div>`}).join('')}
  <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${c.tot}</div><small>fechamentos no período</small><div class="ppl"><div><span>Seguro + Marketing + Motos</span></div></div></div></div>
@@ -232,7 +236,8 @@ function vRank(){const c=calc(S.per),L=c.P[0],mt=meta(),lead=L&&L.pts>0,sm=t=>c.
  chip=x=>`<span class="chip" title="${fd(x.d.d||'')}">${esc(x.d.cli||'(sem nome)')}<button data-act="delc" data-i="${x.j}" aria-label="Remover cliente">✕</button></span>`,
  box=n=>{const mine=ins.filter(x=>x.d.who===n);return `<div class="cl"><b>👤 ${esc(n||'(sem colaboradora)')} <small>(${mine.length} ${mine.length==1?'cliente':'clientes'})</small></b>${TIPOS.map((t,i)=>{const a=mine.filter(x=>x.d.tipo==t);return a.length?`<div class="ni${i}" style="margin:6px 0 0 4px"><small><b>${TI[t]} ${t}</b> (${a.length})</small><div class="chips">${a.map(chip).join('')}</div></div>`:''}).join('')||'<div><small>Nenhum cliente neste período</small></div>'}</div>`};
  return names.concat(outros).map(box).join('')})()}
- ${(S.ign||[]).length?`<button class="btn" data-act="unign">↩ Restaurar ${S.ign.length} removido(s) do Notion</button>`:''}</div>`}
+ ${(S.ign||[]).length?`<button class="btn" data-act="unign">↩ Restaurar ${S.ign.length} removido(s) do Notion</button>`:''}
+ ${(S.ignP||[]).length?`<div style="margin-top:12px"><small style="display:block;margin-bottom:6px">🚫 Colaboradoras excluídas (não voltam sozinhas na sincronização):</small><div class="chips">${S.ignP.map(n=>`<span class="chip">${esc(n)}<button data-act="unignp" data-n="${esc(n)}" title="Restaurar">↩</button></span>`).join('')}</div></div>`:''}</div>`}
 function vPrizes(){const R=S.rules,mt=meta(),mi=mIdx(S.ym);
  return `<h1>${T('t4','Premiação')}</h1><p class="sub">${T('s4','Quanto maior o período, maior o prêmio. Vence quem mais fecha.')}</p>
  <div class="gate">Prêmios liberados conforme o ranking. 🎯 ${esc(R.metaTit)}: ${mt.m} clientes fechados (já são ${mt.n}, ${mt.p}%).</div>
@@ -258,17 +263,21 @@ function vRules(){const R=S.rules,mt=meta(),cl=[
  ['CLÁUSULA 9ª – DAS DISPOSIÇÕES GERAIS',[`Os casos omissos serão decididos pela Diretoria da ${EMP}.`,`A empresa poderá alterar este regulamento mediante aviso prévio à equipe.`]]];
  return `<h1>${T('t6','📜 Regulamento do Programa')}</h1><p class="sub">${T('s6','Leia com atenção: as regras valem para todas.')}</p>
  <div class="card doc">${cl.map(([t,ps],i)=>`<h3>${t}</h3><ol>${ps.map((p,j)=>`<li><b>${i+1}.${j+1}</b>${p}</li>`).join('')}</ol>`).join('')}</div>`}
-function vDeals(){const F=S.fil||'all',all=S.deals,ds=all.map((d,i)=>({d,i})).filter(x=>F=='all'||x.d.tipo==F),
- ppl=a=>S.team.map(p=>`<div><span>${p.n}</span><b>${a.filter(d=>d.who===p.n).length}</b></div>`).join(''),svc=a=>SV.map(([n,e])=>`<span>${e} ${n}: <b>${a.filter(d=>d.serv.includes(n)).length}</b></span>`).join(''),cl=n=>n==1?'cliente':'clientes';
+function vDeals(){const F=S.fil||'all',M=S.filM||'all',all=S.deals,
+ meses=[...new Set(all.map(d=>ymo(d.d||'')).filter(Boolean))].sort().reverse(),
+ byT=a=>M=='all'?a:a.filter(d=>ymo(d.d||'')==M),
+ ds=all.map((d,i)=>({d,i})).filter(x=>(F=='all'||x.d.tipo==F)&&(M=='all'||ymo(x.d.d||'')==M)),
+ ppl=a=>S.team.map(p=>`<div><span>${p.n}</span><b>${byT(a).filter(d=>d.who===p.n).length}</b></div>`).join(''),svc=a=>SV.map(([n,e])=>`<span>${e} ${n}: <b>${byT(a).filter(d=>d.serv.includes(n)).length}</b></span>`).join(''),cl=n=>n==1?'cliente':'clientes';
  return `<h1>${T('t2','Fechamentos')}</h1><p class="sub">Escolha o nicho, preencha e salve. Os cards somam tudo sozinhos. Cada linha vale 1 ponto.</p>
  <div class="nw"><b>➕ Novo fechamento:</b>${TIPOS.map((t,i)=>`<button class="btn ni${i}" data-act="new" data-k="${t}">${TI[t]} ${t}</button>`).join('')}</div>
- <div class="cats">${TIPOS.map((t,i)=>{const a=all.filter(d=>d.tipo==t);return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${a.length}</div><small>${cl(a.length)}</small>${t=='Marketing'?`<div class="svs">${svc(a)}</div>`:''}<div class="ppl">${ppl(a)}</div></div>`}).join('')}
- <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${all.length}</div><small>${cl(all.length)}</small><div class="ppl">${ppl(all)}</div></div></div>
- <div class="flt">${[['all','📋 Todos',all.length],...TIPOS.map(t=>[t,TI[t]+' '+t,all.filter(d=>d.tipo==t).length])].map(([k,l,n])=>`<button class="${F==k?'on':''}" data-act="fil" data-k="${k}">${l} (${n})</button>`).join('')}</div>
+ <div class="cats">${TIPOS.map((t,i)=>{const a=byT(all.filter(d=>d.tipo==t));return `<div class="card cat ni${i}"><div class="hd"><span class="ic">${TI[t]}</span><b>${t}</b></div><div class="n">${a.length}</div><small>${cl(a.length)}${M!='all'?' em '+MN(M):''}</small>${t=='Marketing'?`<div class="svs">${svc(all.filter(d=>d.tipo==t))}</div>`:''}<div class="ppl">${ppl(all.filter(d=>d.tipo==t))}</div></div>`}).join('')}
+ <div class="card cat tot"><div class="hd"><span class="ic">➕</span><b>Total geral</b></div><div class="n">${byT(all).length}</div><small>${cl(byT(all).length)}${M!='all'?' em '+MN(M):''}</small><div class="ppl">${ppl(all)}</div></div></div>
+ <div class="flt">${[['all','📋 Todos',byT(all).length],...TIPOS.map(t=>[t,TI[t]+' '+t,byT(all.filter(d=>d.tipo==t)).length])].map(([k,l,n])=>`<button class="${F==k?'on':''}" data-act="fil" data-k="${k}">${l} (${n})</button>`).join('')}
+ <select data-fm="1" aria-label="Filtrar por mês"><option value="all" ${M=='all'?'selected':''}>📅 Todos os meses</option>${meses.map(m=>`<option value="${m}" ${M==m?'selected':''}>${MN(m)}</option>`).join('')}</select></div>
  <div class="wrap"><table><tr><th>Nicho</th><th>Data</th><th>Colaboradora</th><th>Tipo</th><th>Cliente</th><th>Serviços (Marketing)</th><th></th></tr>
  ${ds.map(({d,i})=>`<tr class="nr ni${TIPOS.indexOf(d.tipo)}"><td><span class="nb">${TI[d.tipo]} ${d.tipo}</span></td><td>${inp(`deals.${i}.d`,d.d,'date')}</td><td>${sel(`deals.${i}.who`,d.who,S.team.map(p=>p.n))}</td><td>${sel(`deals.${i}.tipo`,d.tipo,TIPOS)}</td><td>${inp(`deals.${i}.cli`,d.cli)}</td>
- <td class="ni1">${d.tipo=='Marketing'?SV.map(([n,e])=>`<button class="sv ${d.serv.includes(n)?'on':''}" data-act="sv" data-i="${i}" data-k="${n}">${e} ${n}</button>`).join(''):'<small>—</small>'}</td><td><button class="btn" data-act="deld" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||'<tr><td colspan=7>Nenhum fechamento aqui ainda. Use os botões de novo fechamento acima.</td></tr>'}
- <tr class="tfo"><td colspan=7>Total ${F=='all'?'geral':TI[F]+' '+F}: ${ds.length} ${cl(ds.length)}</td></tr></table></div>`}
+ <td class="ni1">${d.tipo=='Marketing'?SV.map(([n,e])=>`<button class="sv ${d.serv.includes(n)?'on':''}" data-act="sv" data-i="${i}" data-k="${n}">${e} ${n}</button>`).join(''):'<small>—</small>'}</td><td><button class="btn" data-act="deld" data-i="${i}" aria-label="Excluir">✕</button></td></tr>`).join('')||`<tr><td colspan=7>Nenhum fechamento ${F=='all'?'':'de '+F+' '}${M=='all'?'':'em '+MN(M)+' '}ainda.</td></tr>`}
+ <tr class="tfo"><td colspan=7>Total ${F=='all'?'geral':TI[F]+' '+F}${M!='all'?' em '+MN(M):''}: ${ds.length} ${cl(ds.length)}</td></tr></table></div>`}
 function vOcc(){const F=S.ofil||'all',R=S.rules,rows=S.occ.map((o,i)=>({o,i})).filter(x=>F=='all'||x.o.who===F).sort((a,b)=>a.o.d<b.o.d?1:-1),
  tot=n=>S.occ.filter(o=>o.who===n),ded=n=>GR.reduce((s,g)=>s+tot(n).filter(o=>o.gr===g).length*(+R.pg[g]||0),0);
  return `<h1>${T('t8','⚠️ Ocorrências')}</h1><p class="sub">Faltas, tarefas não feitas e tarefas não concluídas. Elas não tiram pontos e não mudam o ranking: aparecem em um quadro separado, abaixo do ranking.</p>
@@ -306,7 +315,7 @@ function setPath(path,v){const k=path.split('.');let o=S;k.slice(0,-1).forEach(x
 function dl(pres){save();const s=Object.assign({},S,{pres:pres?1:0,view:'rank'}),c=document.documentElement.cloneNode(true);
  c.querySelector('#seed').textContent=JSON.stringify(s).replace(/</g,'\\u003c');c.querySelector('#app').innerHTML='';c.querySelector('#modal').innerHTML='';c.querySelector('body').className='';
  const u=URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+c.outerHTML],{type:'text/html'})),l=document.createElement('a');l.href=u;l.download=pres?'Tiger_Gate_Apresentacao.html':'Tiger_Gate_Bonificacao.html';l.click()}
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.nw){nw[t.dataset.nw]=t.value;if(t.dataset.nw=='who')render();return}if(t.id=='pal'){S.pal=t.value;save();render();return}const p=t.dataset.p;if(!p)return;
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.nw){nw[t.dataset.nw]=t.value;if(t.dataset.nw=='who')render();return}if(t.id=='pal'){S.pal=t.value;save();render();return}if(t.dataset.fm){S.filM=t.value;save();render();return}if(t.dataset.npn){npName=t.value;return}const p=t.dataset.p;if(!p)return;
  setPath(p,t.tagName=='SELECT'&&/\.dur$/.test(p)?+t.value:t.value);save();render()});
 document.addEventListener('focusout',e=>{const k=e.target.dataset&&e.target.dataset.t;if(k){S.texts[k]=e.target.innerHTML;save()}});
 document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(!a)return;const act=a.dataset.act,i=+a.dataset.i;
@@ -315,7 +324,11 @@ document.addEventListener('click',e=>{const a=e.target.closest('[data-act]');if(
  if(act=='tab'){S.view=a.dataset.k;save()}else if(act=='per'){S.per=a.dataset.k;save()}else if(act=='mv'){S.ym=ymadd(S.ym,+a.dataset.k);save()}
  else if(act=='open'){open=i;S.amo=S.per=='m'?S.ym:S.amo}else if(act=='close')open=null;
  else if(act=='addp'){S.team.push({n:'Nova pessoa',att:{}});open=S.team.length-1;save()}
- else if(act=='delp'){if(confirm('Excluir esta pessoa e os fechamentos dela?')){const n=S.team[open].n;S.deals=S.deals.filter(d=>d.who!==n);S.occ=S.occ.filter(d=>d.who!==n);S.team.splice(open,1);open=null;save()}}
+ else if(act=='addp2'){const n=String(npName||'').trim();if(!n)return alert('Digite o nome da colaboradora.');
+ if(S.team.some(p=>p.n===n))return alert('Essa colaboradora já existe no ranking.');
+ S.team.push({n,att:{}});S.ignP=(S.ignP||[]).filter(x=>x!==n);npName='';save()}
+ else if(act=='delp'){if(confirm('Excluir esta pessoa e os fechamentos dela? Ela não vai voltar sozinha numa próxima sincronização do Notion.')){const n=S.team[open].n;S.deals=S.deals.filter(d=>d.who!==n);S.occ=S.occ.filter(d=>d.who!==n);S.team.splice(open,1);S.ignP=S.ignP||[];if(!S.ignP.includes(n))S.ignP.push(n);open=null;save()}}
+ else if(act=='unignp'){S.ignP=(S.ignP||[]).filter(x=>x!==a.dataset.n);save()}
  else if(act=='addd'){const t=a.dataset.t0;S.deals.push({d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',tipo:TIPOS.includes(S.fil)?S.fil:'Seguro',cli:'',dur:3,val:0});save()}
  else if(act=='new'){const t=new Date().toISOString().slice(0,10);nw={tipo:a.dataset.k,d:t<S.rules.start?S.rules.start:t,who:(S.team[0]||{}).n||'',cli:'',serv:[]}}
  else if(act=='nwt')nw.tipo=a.dataset.k;
@@ -400,7 +413,8 @@ async function sincronizarNotionFinal(){
     const antigos = {};
     S.deals.forEach(d => { if(d.nid) antigos[d.nid] = d; });
 
-    let semData = 0;
+    const ignP = new Set((S.ignP || []).map(norm));
+    let semData = 0, ignorados = 0;
     const novos = data.fechamentos.filter(f => !f.id || !ign.has(f.id)).map(f => {
       const who = casar(f.funcionario);
       if(!nomes.includes(who)) semMatch.add(who || "(vazio)");
@@ -413,6 +427,9 @@ async function sincronizarNotionFinal(){
         serv: old ? (old.serv || []) : [],
         val: 0, dur: 3, nid: f.id, src: "notion"
       };
+    }).filter(d => {
+      if(ignP.has(norm(d.who))){ ignorados++; return false; } // colaboradora excluída manualmente: não volta sozinha
+      return true;
     });
 
     // mantém tudo que você lançou à mão; troca só o que veio do Notion
@@ -425,6 +442,7 @@ async function sincronizarNotionFinal(){
     if(data.erros && data.erros.length) msg += " | Falhou: " + data.erros.map(e => e.banco).join(", ");
     if(semMatch.size) msg += " | Nome sem correspondência na equipe: " + [...semMatch].join(", ");
     if(semData) msg += " | " + semData + " sem data (não entram no ranking)";
+    if(ignorados) msg += " | " + ignorados + " de colaboradora(s) excluída(s) não foram trazidos de volta";
     if(status) status.innerText = msg;
   }catch(e){
     console.error(e);
