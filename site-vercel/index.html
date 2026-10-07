@@ -438,11 +438,16 @@ async function sincronizarNotionFinal(){
     save();
     render();
 
-    let msg = "Sincronizado: " + novos.length + " fechamentos do Notion";
-    if(data.erros && data.erros.length) msg += " | Falhou: " + data.erros.map(e => e.banco).join(", ");
-    if(semMatch.size) msg += " | Nome sem correspondência na equipe: " + [...semMatch].join(", ");
-    if(semData) msg += " | " + semData + " sem data (não entram no ranking)";
-    if(ignorados) msg += " | " + ignorados + " de colaboradora(s) excluída(s) não foram trazidos de volta";
+    // Mensagem curta na tela; os detalhes (nomes sem correspondência, sem data, ignorados) ficam só no console para depuração.
+    if(data.erros && data.erros.length){
+      console.warn("Falhou:", data.erros.map(e => e.banco).join(", "));
+    }
+    if(semMatch.size) console.warn("Nome sem correspondência na equipe:", [...semMatch].join(", "));
+    if(semData) console.warn(semData + " fechamento(s) sem data (não entram no ranking)");
+    if(ignorados) console.warn(ignorados + " fechamento(s) de colaboradora(s) excluída(s) não foram trazidos de volta");
+    const agora = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    let msg = "✅ Sincronizado às " + agora;
+    if(data.erros && data.erros.length) msg = "⚠️ Sincronizado com falhas às " + agora + " (veja o console)";
     if(status) status.innerText = msg;
   }catch(e){
     console.error(e);
